@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             });
         }else {
             myText.setText("未登录");
-            session = null;
+            session = "";
         }
         fragementHome = new HomeFragment();
         fragementMessage = new MessageFragment();
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final SQLiteDatabase sqLiteDatabase = accountHelper.getReadableDatabase();
         Cursor c = sqLiteDatabase.rawQuery("select session,permission from account",null);
         if (c.moveToFirst()){
-            if (session!=c.getString(c.getColumnIndex("session"))){
+            if (!session.equals(c.getString(c.getColumnIndex("session")))){
                 session=c.getString(c.getColumnIndex("session"));
                 int permission = c.getInt(c.getColumnIndex("permission"));
                 Fragment fragment = getSupportFragmentManager().findFragmentByTag("my");
@@ -261,7 +261,56 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         });
                     }
+                } else if (permission!=0){
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    Request request = new Request.Builder()
+                            .url("http://39.96.40.12:7703/getuserinfobysession?session="+session)
+                            .get()
+                            .build();
+                    Call call = okHttpClient.newCall(request);
+                    call.enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Log.e("shiniu.okhttp", "获取用户网络请求错误");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MainActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            String userInfo = response.body().string();
+                            JSONObject jsonObject1=JSON.parseObject(userInfo);
+                            try {
+                                sqLiteDatabase.execSQL("delete from userinfo");
+                                sqLiteDatabase.execSQL("insert into userinfo(uid,name,avatar,introduction) values("+jsonObject1.getInteger("uid")+",'"+jsonObject1.getString("name")+"','"+jsonObject1.getString("avatar")+"','"+jsonObject1.getString("introduction")+"')");
+                            }catch (Exception e){
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(MainActivity.this, "缓存异常", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+
+                        }
+                    });
                 }
+            }
+        } else {
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag("my");
+            if (fragment!=null) {
+                change = "home";
+                myImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_olcowlog_my));
+                myText.setTextColor(Color.parseColor("#8A8A8A"));
+                homeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_olcowlog_home_ye));
+                homeText.setTextColor(Color.parseColor("#F49E38"));
+                myText.setText("我的");
+                getSupportFragmentManager().beginTransaction().show(getSupportFragmentManager().findFragmentByTag(change)).commit();
+                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
             }
         }
     }

@@ -6,22 +6,26 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.olcow.shiniu.MainActivity;
 import com.olcow.shiniu.R;
 import com.olcow.shiniu.activity.LoginActivity;
+import com.olcow.shiniu.activity.SettingActivity;
+import com.olcow.shiniu.entity.UserInfo;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
 
 import java.io.IOException;
@@ -220,6 +224,45 @@ public class MyFragment extends Fragment {
                 return view;
             } else {
                 View view = inflater.inflate(R.layout.fragment_my,container,false);
+                UserInfo userInfo = new UserInfo();
+                Cursor userC = sqLiteDatabase.rawQuery("select *from userinfo",null);
+                if (userC.moveToFirst()){
+                     userInfo.setAvatar(userC.getString(userC.getColumnIndex("avatar")));
+                     userInfo.setName(userC.getString(userC.getColumnIndex("name")));
+                     userInfo.setUid(userC.getInt(userC.getColumnIndex("uid")));
+                     userInfo.setIntroduction(userC.getString(userC.getColumnIndex("introduction")));
+                     ImageView imageView = view.findViewById(R.id.my_avatar);
+                     ImageView settings = view.findViewById(R.id.my_setting);
+                     settings.setOnClickListener(new View.OnClickListener() {
+                         @Override
+                         public void onClick(View v) {
+                             startActivity(new Intent(getActivity(),SettingActivity.class));
+                         }
+                     });
+                    RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.olcowlog_ye_touxiang);
+                    Glide.with(this)
+                        .load(userInfo.getAvatar())
+                        .apply(requestOptions)
+                        .into(imageView);
+                    TextView myNameText = view.findViewById(R.id.my_name);
+                    TextView myIntroduction = view.findViewById(R.id.my_introduction);
+                    if (!userInfo.getName().equals("defaultusername")){
+                        myNameText.setText(userInfo.getName());
+                        myIntroduction.setText(userInfo.getIntroduction());
+                    } else {
+                        myNameText.setText("默认昵称");
+                        myIntroduction.setText("这个人并没有简介~");
+                    }
+                } else {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity(), "获取用户缓存失败,请关闭重试", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    TextView myNameText = view.findViewById(R.id.my_name);
+                    myNameText.setText("缓存失败,请退出重试");
+                }
                 return view;
             }
         } else {
