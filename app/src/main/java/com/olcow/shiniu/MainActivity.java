@@ -2,10 +2,17 @@ package com.olcow.shiniu;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.StrictMode;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +20,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,14 +32,26 @@ import com.olcow.shiniu.fragment.HomeFragment;
 import com.olcow.shiniu.fragment.MessageFragment;
 import com.olcow.shiniu.fragment.MyFragment;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
+import com.olcow.shiniu.until.OkhttpUnitl;
+import com.yalantis.ucrop.UCrop;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -433,6 +454,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     animatorSet.start();
                     return;
                 }
+                break;
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case 3:
+                if (data==null){
+                    Log.e("shiniu", "data=null" );
+                    return;
+                } else {
+                    final Uri resultUri = UCrop.getOutput(data);
+                    File file = new File(getCacheDir(),"cropcache.jpeg");
+                    OkHttpClient client = new OkHttpClient.Builder()
+                            .writeTimeout(30, TimeUnit.SECONDS)
+                            .build();
+                    RequestBody fileBody = RequestBody.create(MediaType.parse("file"), file);
+                    final RequestBody requestBody = new MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart("file","cropcache.jpeg",fileBody)
+                            .build();
+                    Request request = new Request.Builder()
+                            .url("http://123.206.93.200:8080/upload")
+                            .post(requestBody)
+                            .build();
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Log.e("shiniu", "onFailure: 失败");
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            Log.e("shiniu", "onFailure: "+response.body().string());
+                        }
+                    });
+                }
+                break;
+            default:
                 break;
         }
     }

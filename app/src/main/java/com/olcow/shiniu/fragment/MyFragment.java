@@ -1,19 +1,26 @@
 package com.olcow.shiniu.fragment;
 
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +34,10 @@ import com.olcow.shiniu.activity.LoginActivity;
 import com.olcow.shiniu.activity.SettingActivity;
 import com.olcow.shiniu.entity.UserInfo;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
+import com.yalantis.ucrop.UCrop;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -244,6 +254,14 @@ public class MyFragment extends Fragment {
                         .load(userInfo.getAvatar())
                         .apply(requestOptions)
                         .into(imageView);
+                    imageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(Intent.ACTION_PICK,null);
+                            intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*");
+                            startActivityForResult(intent,2);
+                        }
+                    });
                     TextView myNameText = view.findViewById(R.id.my_name);
                     TextView myIntroduction = view.findViewById(R.id.my_introduction);
                     if (!userInfo.getName().equals("defaultusername")){
@@ -275,6 +293,27 @@ public class MyFragment extends Fragment {
                 }
             });
             return view;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+            super.onActivityResult(requestCode, resultCode, data);
+            switch (requestCode){
+                case 2:
+                    Uri uri;
+                    if (data == null){
+                        return;
+                    }
+                    uri = data.getData();
+                    UCrop.of(uri, Uri.fromFile(new File(getActivity().getCacheDir(),"cropcache.jpeg")))
+                            .withAspectRatio(1, 1)
+                            .withMaxResultSize(500, 500)
+                            .start(getActivity(),3);
+                    break;
+                default:
+                    break;
         }
     }
 }
