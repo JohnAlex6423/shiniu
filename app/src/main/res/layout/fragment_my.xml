@@ -54,6 +54,7 @@
         </android.support.constraint.ConstraintLayout>
     </LinearLayout>
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/my_list_con"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/my_info"
@@ -188,4 +189,16 @@
         </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
+    <Button
+        android:id="@+id/my_change_user_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="编辑个人资料"
+        android:layout_margin="20dp"
+        android:textColor="@color/colorAccent"
+        android:textSize="20sp"
+        android:background="@drawable/bg_button_sq"
+        app:layout_constraintTop_toBottomOf="@+id/my_list_con"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 </android.support.constraint.ConstraintLayout>

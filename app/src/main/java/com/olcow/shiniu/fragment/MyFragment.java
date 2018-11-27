@@ -1,18 +1,19 @@
 package com.olcow.shiniu.fragment;
 
 
-import android.content.ContentResolver;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +37,6 @@ import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -52,6 +51,8 @@ import okhttp3.Response;
 public class MyFragment extends Fragment {
 
     private boolean coolButton = true;
+
+    ImageView myAvatarImage;
 
     public MyFragment() {
         // Required empty public constructor
@@ -241,7 +242,7 @@ public class MyFragment extends Fragment {
                      userInfo.setName(userC.getString(userC.getColumnIndex("name")));
                      userInfo.setUid(userC.getInt(userC.getColumnIndex("uid")));
                      userInfo.setIntroduction(userC.getString(userC.getColumnIndex("introduction")));
-                     ImageView imageView = view.findViewById(R.id.my_avatar);
+                     myAvatarImage = view.findViewById(R.id.my_avatar);
                      ImageView settings = view.findViewById(R.id.my_setting);
                      settings.setOnClickListener(new View.OnClickListener() {
                          @Override
@@ -253,8 +254,8 @@ public class MyFragment extends Fragment {
                     Glide.with(this)
                         .load(userInfo.getAvatar())
                         .apply(requestOptions)
-                        .into(imageView);
-                    imageView.setOnClickListener(new View.OnClickListener() {
+                        .into(myAvatarImage);
+                    myAvatarImage.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             Intent intent = new Intent(Intent.ACTION_PICK,null);
@@ -314,6 +315,30 @@ public class MyFragment extends Fragment {
                     break;
                 default:
                     break;
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("changemyavatar");
+        localBroadcastManager.registerReceiver(myBroadcastReceiver,intentFilter);
+    }
+    class MyBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            SQLiteOpenHelper helper = new AccountDatabaseHelper(getActivity(),"olcowsso",null,1);
+            SQLiteDatabase sqLiteDatabase = helper.getReadableDatabase();
+            Cursor cursor = sqLiteDatabase.rawQuery("select avatar from userinfo",null);
+            if (cursor.moveToFirst()){
+                Glide.with(getActivity())
+                        .load(cursor.getString(cursor.getColumnIndex("avatar")))
+                        .into(myAvatarImage);
+            }
         }
     }
 }

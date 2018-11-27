@@ -25,8 +25,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".activity.LoginActivity" />
-        <activity android:name=".activity.SettingActivity"
-            android:theme="@style/SettingsTheme"/>
+        <activity
+            android:name=".activity.SettingActivity"
+            android:theme="@style/SettingsTheme" />
+        <activity android:name=".activity.EditUserinfoActivity"></activity>
     </application>
 
 </manifest>
