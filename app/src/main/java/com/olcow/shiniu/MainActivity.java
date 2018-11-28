@@ -508,10 +508,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         SQLiteDatabase sqLiteDatabase = helper.getWritableDatabase();
                                         sqLiteDatabase.execSQL("update userinfo set avatar="+imgsrc);
                                         Intent intent = new Intent();
-                                        intent.setAction("changemyavatar");
+                                        intent.setAction("changemy");
                                         LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(intent);
-//                                        startActivity(new Intent(MainActivity.this,MainActivity.class));
-//                                        finish();
                                     } else if (res.equals("session error")){
                                         SQLiteOpenHelper helper = new AccountDatabaseHelper(MainActivity.this,"olcowsso",null,1);
                                         SQLiteDatabase sqLiteDatabase = helper.getWritableDatabase();

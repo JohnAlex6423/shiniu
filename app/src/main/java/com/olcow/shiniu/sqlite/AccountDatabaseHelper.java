@@ -29,23 +29,6 @@ public class AccountDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * 构造函数
-     * 在SQLiteOpenHelper的子类中，必须有该构造函数
-     */
-    public AccountDatabaseHelper(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version, @Nullable DatabaseErrorHandler errorHandler) {
-        super(context, name, factory, version, errorHandler);
-    }
-
-    /**
-     * 构造函数
-     * 在SQLiteOpenHelper的子类中，必须有该构造函数
-     */
-    @RequiresApi(api = Build.VERSION_CODES.P)
-    public AccountDatabaseHelper(@Nullable Context context, @Nullable String name, int version, @NonNull SQLiteDatabase.OpenParams openParams) {
-        super(context, name, version, openParams);
-    }
-
-    /**
      * 复写onCreate（）
      * 调用时刻：当数据库第1次创建时调用
      * 作用：创建数据库 表 & 初始化数据

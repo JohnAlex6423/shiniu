@@ -30,6 +30,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.olcow.shiniu.MainActivity;
 import com.olcow.shiniu.R;
+import com.olcow.shiniu.activity.EditUserinfoActivity;
 import com.olcow.shiniu.activity.LoginActivity;
 import com.olcow.shiniu.activity.SettingActivity;
 import com.olcow.shiniu.entity.UserInfo;
@@ -53,6 +54,9 @@ public class MyFragment extends Fragment {
     private boolean coolButton = true;
 
     ImageView myAvatarImage;
+
+    TextView myNameText;
+    TextView myIntroduction;
 
     public MyFragment() {
         // Required empty public constructor
@@ -99,73 +103,79 @@ public class MyFragment extends Fragment {
                             @Override
                             public void onResponse(Call call, Response response) throws IOException {
                                 String res = response.body().string();
-                                if (res.equals("no login")){
-                                    sqLiteDatabase.execSQL("delete from account");
-                                    sqLiteDatabase.execSQL("delete from userinfo");
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(getActivity(), "登陆失效", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                } else if (res.equals("is activity")){
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(getActivity(),"您已激活",Toast.LENGTH_SHORT).show();
-                                            startActivity(new Intent(getActivity(),MainActivity.class));
-                                            getActivity().finish();
-                                        }
-                                    });
-                                } else if (res.equals("no activity")){
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(getActivity(), "您还未激活", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                } else if (res.equals("update successful")){
-                                    Request request1 = new Request.Builder()
-                                            .url("http://39.96.40.12:7703/islogin?session="+session)
-                                            .build();
-                                    Call call1 = okHttpClient.newCall(request1);
-                                    call1.enqueue(new Callback() {
-                                        @Override
-                                        public void onFailure(Call call, IOException e) {
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Toast.makeText(getActivity(), "网络异常请重试", Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
-                                        }
-
-                                        @Override
-                                        public void onResponse(Call call, Response response) throws IOException {
-                                            String res = response.body().string();
-                                            if (res.equals("no login")||res.equals("redis error")){
+                                switch (res) {
+                                    case "no login":
+                                        sqLiteDatabase.execSQL("delete from account");
+                                        sqLiteDatabase.execSQL("delete from userinfo");
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(getActivity(), "登陆失效", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        break;
+                                    case "is activity":
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(getActivity(), "您已激活", Toast.LENGTH_SHORT).show();
+                                                startActivity(new Intent(getActivity(), MainActivity.class));
+                                                getActivity().finish();
+                                            }
+                                        });
+                                        break;
+                                    case "no activity":
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(getActivity(), "您还未激活", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        break;
+                                    case "update successful":
+                                        Request request1 = new Request.Builder()
+                                                .url("http://39.96.40.12:7703/islogin?session=" + session)
+                                                .build();
+                                        Call call1 = okHttpClient.newCall(request1);
+                                        call1.enqueue(new Callback() {
+                                            @Override
+                                            public void onFailure(Call call, IOException e) {
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        Toast.makeText(getActivity(), "服务器异常,请重试", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(getActivity(), "网络异常请重试", Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
-                                            } else{
-                                                JSONObject jsonObject = JSON.parseObject(res);
-                                                sqLiteDatabase.execSQL("delete from account");
-                                                sqLiteDatabase.execSQL("insert into account(session,uid,username,email,permission) values('"+session+"',"+jsonObject.getInteger("uid")+",'"+jsonObject.getString("username")+"','"+jsonObject.getString("email")+"',"+jsonObject.getInteger("permission")+")");
-                                                startActivity(new Intent(getActivity(),MainActivity.class));
-                                                getActivity().finish();
                                             }
-                                        }
-                                    });
-                                }else {
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(getActivity(), "服务器异常,请重试", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+
+                                            @Override
+                                            public void onResponse(Call call, Response response) throws IOException {
+                                                String res = response.body().string();
+                                                if (res.equals("no login") || res.equals("redis error")) {
+                                                    getActivity().runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            Toast.makeText(getActivity(), "服务器异常,请重试", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                                } else {
+                                                    JSONObject jsonObject = JSON.parseObject(res);
+                                                    sqLiteDatabase.execSQL("delete from account");
+                                                    sqLiteDatabase.execSQL("insert into account(session,uid,username,email,permission) values('" + session + "'," + jsonObject.getInteger("uid") + ",'" + jsonObject.getString("username") + "','" + jsonObject.getString("email") + "'," + jsonObject.getInteger("permission") + ")");
+                                                    startActivity(new Intent(getActivity(), MainActivity.class));
+                                                    getActivity().finish();
+                                                }
+                                            }
+                                        });
+                                        break;
+                                    default:
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(getActivity(), "服务器异常,请重试", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        break;
                                 }
                             }
                         });
@@ -194,30 +204,34 @@ public class MyFragment extends Fragment {
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
                                     String res = response.body().string();
-                                    if (res.equals("account is activity")){
-                                        getActivity().runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(getActivity(), "账号已被激活", Toast.LENGTH_SHORT).show();
-                                                startActivity(new Intent(getActivity(),MainActivity.class));
-                                                getActivity().finish();
-                                            }
-                                        });
-                                    }else if (res.equals("no login")){
-                                        getActivity().runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(getActivity(), "账号已过期请重新登陆", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                        startActivity(new Intent(getActivity(),LoginActivity.class));
-                                    } else if (res.equals("successful")){
-                                        getActivity().runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(getActivity(), "激活邮件已发送,请去邮箱查看", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                                    switch (res) {
+                                        case "account is activity":
+                                            getActivity().runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(getActivity(), "账号已被激活", Toast.LENGTH_SHORT).show();
+                                                    startActivity(new Intent(getActivity(), MainActivity.class));
+                                                    getActivity().finish();
+                                                }
+                                            });
+                                            break;
+                                        case "no login":
+                                            getActivity().runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(getActivity(), "账号已过期请重新登陆", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                            startActivity(new Intent(getActivity(), LoginActivity.class));
+                                            break;
+                                        case "successful":
+                                            getActivity().runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(getActivity(), "激活邮件已发送,请去邮箱查看", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                            break;
                                     }
                                 }
                             });
@@ -234,16 +248,24 @@ public class MyFragment extends Fragment {
                 });
                 return view;
             } else {
-                View view = inflater.inflate(R.layout.fragment_my,container,false);
+                View view;
                 UserInfo userInfo = new UserInfo();
                 Cursor userC = sqLiteDatabase.rawQuery("select *from userinfo",null);
                 if (userC.moveToFirst()){
+                     view = inflater.inflate(R.layout.fragment_my,container,false);
                      userInfo.setAvatar(userC.getString(userC.getColumnIndex("avatar")));
                      userInfo.setName(userC.getString(userC.getColumnIndex("name")));
                      userInfo.setUid(userC.getInt(userC.getColumnIndex("uid")));
                      userInfo.setIntroduction(userC.getString(userC.getColumnIndex("introduction")));
                      myAvatarImage = view.findViewById(R.id.my_avatar);
                      ImageView settings = view.findViewById(R.id.my_setting);
+                     Button editUserInfoButton = view.findViewById(R.id.my_change_user_info);
+                     editUserInfoButton.setOnClickListener(new View.OnClickListener() {
+                         @Override
+                         public void onClick(View v) {
+                             startActivity(new Intent(getActivity(),EditUserinfoActivity.class));
+                         }
+                     });
                      settings.setOnClickListener(new View.OnClickListener() {
                          @Override
                          public void onClick(View v) {
@@ -263,8 +285,8 @@ public class MyFragment extends Fragment {
                             startActivityForResult(intent,2);
                         }
                     });
-                    TextView myNameText = view.findViewById(R.id.my_name);
-                    TextView myIntroduction = view.findViewById(R.id.my_introduction);
+                    myNameText = view.findViewById(R.id.my_name);
+                    myIntroduction = view.findViewById(R.id.my_introduction);
                     if (!userInfo.getName().equals("defaultusername")){
                         myNameText.setText(userInfo.getName());
                         myIntroduction.setText(userInfo.getIntroduction());
@@ -273,6 +295,7 @@ public class MyFragment extends Fragment {
                         myIntroduction.setText("这个人并没有简介~");
                     }
                 } else {
+                    view = inflater.inflate(R.layout.fragment_my,container,false);
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -324,7 +347,7 @@ public class MyFragment extends Fragment {
         MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("changemyavatar");
+        intentFilter.addAction("changemy");
         localBroadcastManager.registerReceiver(myBroadcastReceiver,intentFilter);
     }
     class MyBroadcastReceiver extends BroadcastReceiver {
@@ -333,11 +356,13 @@ public class MyFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             SQLiteOpenHelper helper = new AccountDatabaseHelper(getActivity(),"olcowsso",null,1);
             SQLiteDatabase sqLiteDatabase = helper.getReadableDatabase();
-            Cursor cursor = sqLiteDatabase.rawQuery("select avatar from userinfo",null);
+            Cursor cursor = sqLiteDatabase.rawQuery("select avatar,name,introduction from userinfo",null);
             if (cursor.moveToFirst()){
                 Glide.with(getActivity())
                         .load(cursor.getString(cursor.getColumnIndex("avatar")))
                         .into(myAvatarImage);
+                myNameText.setText(cursor.getString(cursor.getColumnIndex("name")));
+                myIntroduction.setText(cursor.getString(cursor.getColumnIndex("introduction")));
             }
         }
     }
