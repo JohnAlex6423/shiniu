@@ -28,8 +28,10 @@
         <activity
             android:name=".activity.SettingActivity"
             android:theme="@style/SettingsTheme" />
-        <activity android:name=".activity.EditUserinfoActivity"
-            android:theme="@style/SettingsTheme"></activity>
+        <activity
+            android:name=".activity.EditUserinfoActivity"
+            android:theme="@style/SettingsTheme" />
+        <activity android:name=".activity.SearchActivity"></activity>
     </application>
 
 </manifest>

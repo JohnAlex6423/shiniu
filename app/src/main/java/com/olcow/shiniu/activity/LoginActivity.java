@@ -120,11 +120,11 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                usernameEditText.validateWith(new RegexpValidator("输入了非字符,请输入字母,数字或英文字符","^[0-9a-zA-Z`~!@#$%^&*()\\-_=+|\\\\\\]}{\\[\"':;?/>.<,]{0,100}$"));
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                usernameEditText.validateWith(new RegexpValidator("输入了非字符,请输入字母,数字或英文字符","^[0-9a-zA-Z`~!@#$%^&*()\\-_=+|\\\\\\]}{\\[\"':;?/>.<,]{0,100}$"));
             }
         });
         regUsernameEditText.addTextChangedListener(new TextWatcher() {
