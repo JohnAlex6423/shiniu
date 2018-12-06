@@ -78,6 +78,13 @@ public class MyFragment extends Fragment {
             if (cursor.getInt(cursor.getColumnIndex("permission"))==0){
                 View view = inflater.inflate(R.layout.fragment_my_noactivity,container,false);
                 Button refreshActivityButton = view.findViewById(R.id.refresh_activity_button);
+                ImageView settings = view.findViewById(R.id.my_setting);
+                settings.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(getActivity(),SettingActivity.class));
+                    }
+                });
                 final LinearLayout sendActivityText = view.findViewById(R.id.send_activity_text);
                 refreshActivityButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -184,6 +191,7 @@ public class MyFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if (coolButton){
+                            coolButton = false;
                             OkHttpClient okHttpClient = new OkHttpClient();
                             Request request = new Request.Builder()
                                     .url("http://39.96.40.12:7703/sendactivityemail?session="+session)
@@ -195,6 +203,7 @@ public class MyFragment extends Fragment {
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
+                                            coolButton = true;
                                             Toast.makeText(getActivity(), "网络异常,请检查网络", Toast.LENGTH_SHORT).show();
                                         }
                                     });
@@ -235,7 +244,6 @@ public class MyFragment extends Fragment {
                                 }
                             });
                         }else {
-                            coolButton = false;
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

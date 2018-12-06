@@ -9,12 +9,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".activity.EditUserinfoActivity">
+
+        <com.olcow.shiniu.myview.CircleImageView
+            android:id="@+id/edit_edit_avatar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/olcowlog_ye_touxiang"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_margin="10dp"
+            />
+
         <LinearLayout
             android:id="@+id/edit_l_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintTop_toBottomOf="@id/edit_edit_avatar"
             >
 
             <ImageView
@@ -23,9 +35,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_gravity="center"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@id/edit_edit_name"
-                app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_person_black_24dp" />
 
             <com.rengwuxian.materialedittext.MaterialEditText
@@ -45,9 +54,7 @@
                 app:met_helperTextColor="@color/red"
                 app:met_underlineColor="@color/colorAccent"
                 app:met_maxCharacters="12"
-                app:layout_constraintLeft_toRightOf="@+id/edit_userinfo_img_name"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintRight_toRightOf="parent"/>
+                />
         </LinearLayout>
 
         <LinearLayout
