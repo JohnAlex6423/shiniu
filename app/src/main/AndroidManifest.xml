@@ -31,7 +31,8 @@
         <activity
             android:name=".activity.EditUserinfoActivity"
             android:theme="@style/SettingsTheme" />
-        <activity android:name=".activity.SearchActivity"></activity>
+        <activity android:name=".activity.SearchActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize"></activity>
     </application>
 
 </manifest>

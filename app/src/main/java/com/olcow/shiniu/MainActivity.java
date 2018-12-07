@@ -2,16 +2,12 @@ package com.olcow.shiniu;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
-import android.net.Uri;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,26 +17,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.olcow.shiniu.fragment.FriendcFragment;
 import com.olcow.shiniu.fragment.HomeFragment;
 import com.olcow.shiniu.fragment.MessageFragment;
 import com.olcow.shiniu.fragment.MyFragment;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
-import com.yalantis.ucrop.UCrop;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
@@ -444,106 +433,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     animatorSet.start();
                     return;
                 }
-                break;
-        }
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
-            case 3:
-                if (data==null){
-                    Log.e("shiniuf", "onActivityResult: 执行了null");
-                    return;
-                } else {
-                    final Uri resultUri = UCrop.getOutput(data);
-                    File file = new File(getCacheDir(),"cropcache.jpeg");
-                    File file1 = new File(getCacheDir(),"cropcache.jpeg");
-                    final OkHttpClient client = new OkHttpClient.Builder()
-                            .writeTimeout(30, TimeUnit.SECONDS)
-                            .build();
-                    RequestBody fileBody = RequestBody.create(MediaType.parse("file"), file);
-                    RequestBody fileBody1 = RequestBody.create(MediaType.parse("file"), file1);
-                    final RequestBody requestBody = new MultipartBody.Builder()
-                            .setType(MultipartBody.FORM)
-                            .addFormDataPart("file",file.getName(),fileBody)
-                            .addFormDataPart("file",file1.getName(),fileBody1)
-                            .build();
-                    final Request request = new Request.Builder()
-                            .url("http://123.206.93.200:8080/upload")
-                            .post(requestBody)
-                            .build();
-                    client.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Toast.makeText(MainActivity.this, "网络异常,请稍后再试", Toast.LENGTH_SHORT).show();
-                            Log.e("shiniu", "onFailure: 失败");
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            String res = response.body().string();
-                            String imgfile = JSONArray.parseArray(res).get(0).toString();
-                            final String imgsrc ="'http://123.206.93.200/uploadimg/" +imgfile+"'";
-                            Request request1 = new Request.Builder()
-                                    .url("http://39.96.40.12:7703/changeuserinfobysession?session="+session+"&avatar=http://123.206.93.200/uploadimg/"+imgfile)
-                                    .get()
-                                    .build();
-                            client.newCall(request1).enqueue(new Callback() {
-                                @Override
-                                public void onFailure(Call call, IOException e) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(MainActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void onResponse(Call call, Response response) throws IOException {
-                                    String res = response.body().string();
-                                    if (res.equals("successful")){
-                                        SQLiteOpenHelper helper = new AccountDatabaseHelper(MainActivity.this,"olcowsso",null,1);
-                                        SQLiteDatabase sqLiteDatabase = helper.getWritableDatabase();
-                                        sqLiteDatabase.execSQL("update userinfo set avatar="+imgsrc);
-                                        Intent intent = new Intent();
-                                        intent.setAction("changemy");
-                                        LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(intent);
-                                    } else if (res.equals("session error")){
-                                        SQLiteOpenHelper helper = new AccountDatabaseHelper(MainActivity.this,"olcowsso",null,1);
-                                        SQLiteDatabase sqLiteDatabase = helper.getWritableDatabase();
-                                        sqLiteDatabase.execSQL("delete from account");
-                                        sqLiteDatabase.execSQL("delete from userinfo");
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(MainActivity.this, "登陆失效,请重新登陆", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                        startActivity(new Intent(MainActivity.this,MainActivity.class));
-                                        finish();
-                                    } else {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(MainActivity.this, "服务器异常,请稍后重试", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(MainActivity.this, "头像已上传", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-                    });
-                }
-                break;
-            default:
                 break;
         }
     }

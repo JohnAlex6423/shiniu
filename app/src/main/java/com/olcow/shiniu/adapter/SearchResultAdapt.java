@@ -1,0 +1,61 @@
+package com.olcow.shiniu.adapter;
+
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.olcow.shiniu.R;
+import com.olcow.shiniu.entity.UserInfo;
+
+import java.util.List;
+
+public class SearchResultAdapt extends RecyclerView.Adapter<SearchResultAdapt.ViewHolder> {
+
+    private List<UserInfo> userInfoList;
+    RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.olcowlog_ye_touxiang);
+
+    public SearchResultAdapt(List<UserInfo> userInfoList){
+        this.userInfoList = userInfoList;
+    }
+
+    @NonNull
+    @Override
+    public SearchResultAdapt.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        SearchResultAdapt.ViewHolder holder = new SearchResultAdapt.ViewHolder(LayoutInflater.from(
+                viewGroup.getContext()).inflate(R.layout.recy_search_result,viewGroup,false));
+        return holder;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull SearchResultAdapt.ViewHolder viewHolder, int i) {
+        viewHolder.nameText.setText(userInfoList.get(i).getName());
+        viewHolder.uidText.setText("Nid:"+userInfoList.get(i).getUid());
+        Glide.with(viewHolder.itemView.getContext())
+                .load(userInfoList.get(i).getAvatar())
+                .apply(requestOptions)
+                .into(viewHolder.avatarImg);
+    }
+
+    @Override
+    public int getItemCount() {
+        return userInfoList.size();
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder{
+        TextView uidText;
+        ImageView avatarImg;
+        TextView nameText;
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            uidText = itemView.findViewById(R.id.search_result_uid);
+            nameText = itemView.findViewById(R.id.search_result_name);
+            avatarImg = itemView.findViewById(R.id.search_result_avatar);
+        }
+    }
+}

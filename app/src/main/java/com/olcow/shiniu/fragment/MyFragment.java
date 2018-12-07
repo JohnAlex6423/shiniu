@@ -265,14 +265,8 @@ public class MyFragment extends Fragment {
                      userInfo.setUid(userC.getInt(userC.getColumnIndex("uid")));
                      userInfo.setIntroduction(userC.getString(userC.getColumnIndex("introduction")));
                      myAvatarImage = view.findViewById(R.id.my_avatar);
+                     LinearLayout myInfo = view.findViewById(R.id.my_info);
                      ImageView settings = view.findViewById(R.id.my_setting);
-                     Button editUserInfoButton = view.findViewById(R.id.my_change_user_info);
-                     editUserInfoButton.setOnClickListener(new View.OnClickListener() {
-                         @Override
-                         public void onClick(View v) {
-                             startActivity(new Intent(getActivity(),EditUserinfoActivity.class));
-                         }
-                     });
                      settings.setOnClickListener(new View.OnClickListener() {
                          @Override
                          public void onClick(View v) {
@@ -284,12 +278,10 @@ public class MyFragment extends Fragment {
                         .load(userInfo.getAvatar())
                         .apply(requestOptions)
                         .into(myAvatarImage);
-                    myAvatarImage.setOnClickListener(new View.OnClickListener() {
+                    myInfo.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Intent intent = new Intent(Intent.ACTION_PICK,null);
-                            intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*");
-                            startActivityForResult(intent,2);
+                            startActivity(new Intent(getActivity(),EditUserinfoActivity.class));
                         }
                     });
                     myNameText = view.findViewById(R.id.my_name);
@@ -324,27 +316,6 @@ public class MyFragment extends Fragment {
                 }
             });
             return view;
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-            super.onActivityResult(requestCode, resultCode, data);
-            switch (requestCode){
-                case 2:
-                    Uri uri;
-                    if (data == null){
-                        return;
-                    }
-                    uri = data.getData();
-                    UCrop.of(uri, Uri.fromFile(new File(getActivity().getCacheDir(),"cropcache.jpeg")))
-                            .withAspectRatio(1, 1)
-                            .withMaxResultSize(500, 500)
-                            .start(getActivity(),3);
-                    break;
-                default:
-                    break;
         }
     }
 
