@@ -13,6 +13,7 @@ import android.widget.Button;
 
 import com.olcow.shiniu.R;
 import com.olcow.shiniu.activity.LoginActivity;
+import com.olcow.shiniu.activity.UserinfoActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,11 +39,11 @@ public class HomeFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(),LoginActivity.class);
+                Intent intent = new Intent(getActivity(),UserinfoActivity.class);
+                intent.putExtra("uid",1234);
                 startActivity(intent);
             }
         });
         return view;
     }
-
 }

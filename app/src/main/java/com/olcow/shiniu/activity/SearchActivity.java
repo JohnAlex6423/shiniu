@@ -1,5 +1,6 @@
 package com.olcow.shiniu.activity;
 
+import android.os.Handler;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,7 +13,9 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +44,8 @@ public class SearchActivity extends AppCompatActivity {
     private TextView searchClear;
     private RecyclerView resultList;
     private TextView searchNoneText;
+    private TextView searchNoInternetText;
+    private ProgressBar searchProgressBar;
 
     private ImageView searchEditRef;
 
@@ -48,15 +53,22 @@ public class SearchActivity extends AppCompatActivity {
 
     private RecyclerView.Adapter adapter;
 
+    private Handler handler;
+
+    private Runnable updateRec;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        handler = new Handler();
         searchEdit = findViewById(R.id.search_edit);
         searchClear = findViewById(R.id.search_clear);
         searchEditRef = findViewById(R.id.search_edit_ref);
         resultList = findViewById(R.id.search_recyclerView);
         searchNoneText = findViewById(R.id.search_result_none);
+        searchNoInternetText = findViewById(R.id.search_result_nointernet);
+        searchProgressBar = findViewById(R.id.search_result_progressbar);
         resultList.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         userInfoList = new ArrayList<>();
         adapter = new SearchResultAdapt(userInfoList);
@@ -70,12 +82,6 @@ public class SearchActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId==EditorInfo.IME_ACTION_SEARCH){
                     Toast.makeText(SearchActivity.this, "点击了搜索", Toast.LENGTH_SHORT).show();
-                    UserInfo userInfo = new UserInfo();
-                    userInfo.setUid(7538);
-                    userInfo.setAvatar("http://123.206.93.200/uploadavatar/6304ee3e60e643658345edc413b6c99f.jpeg");
-                    userInfo.setName("完全自杀手册");
-                    userInfoList.add(userInfo);
-                    adapter.notifyDataSetChanged();
                     return true;
                 }else {
                     return false;
@@ -96,49 +102,72 @@ public class SearchActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {
                 if (s.toString().length()>0){
                     searchEditRef.setVisibility(View.VISIBLE);
-                    resultList.setVisibility(View.VISIBLE);
-                    searchNoneText.setVisibility(View.GONE);
-                    for (Call call:okHttpClient.dispatcher().queuedCalls()){
-                        Log.e("shiniu.okhttp", "关闭了连接");
-                        call.cancel();
+                    if (updateRec!=null){
+                        handler.removeCallbacks(updateRec);
+                        Log.e("shiniu", "stop");
                     }
-                    final Request request = new Request.Builder()
-                            .url("http://39.96.40.12:1008/searchuserinfo/bynicknameoruid?content="+s.toString())
-                            .build();
-                    okHttpClient.newCall(request).enqueue(new Callback() {
+                    updateRec = new Runnable() {
                         @Override
-                        public void onFailure(Call call, IOException e) {
-                            Log.e("shiniu.okhttp", "请求失败");
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            String res = response.body().string();
-                            JSONObject jsonObject = JSON.parseObject(res);
-                            userInfoList = JSON.parseArray(jsonObject.getString("nickname"),UserInfo.class);
-                            if (userInfoList.isEmpty()){
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        searchNoneText.setVisibility(View.VISIBLE);
-                                    }
-                                });
-                            } else {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
+                        public void run() {
+                            searchProgressBar.setVisibility(View.VISIBLE);
+                            searchNoneText.setVisibility(View.GONE);
+                            searchNoInternetText.setVisibility(View.GONE);
+                            for (Call call:okHttpClient.dispatcher().queuedCalls()){
+                                Log.e("shiniu.okhttp", "关闭了连接");
+                                call.cancel();
                             }
+                            final Request request = new Request.Builder()
+                                    .url("http://39.96.40.12:1008/searchuserinfo/bynicknameoruid?content="+s.toString())
+                                    .build();
+                            okHttpClient.newCall(request).enqueue(new Callback() {
+                                @Override
+                                public void onFailure(Call call, IOException e) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            searchProgressBar.setVisibility(View.GONE);
+                                            searchNoInternetText.setVisibility(View.VISIBLE);
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    String res = response.body().string();
+                                    JSONObject jsonObject = JSON.parseObject(res);
+                                    userInfoList.clear();
+                                    userInfoList.addAll(JSON.parseArray(jsonObject.getString("uid"),UserInfo.class));
+                                    userInfoList.addAll(JSON.parseArray(jsonObject.getString("nickname"),UserInfo.class));
+                                    if (userInfoList.isEmpty()){
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                searchProgressBar.setVisibility(View.GONE);
+                                                searchNoneText.setVisibility(View.VISIBLE);
+                                            }
+                                        });
+                                    } else {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                searchProgressBar.setVisibility(View.GONE);
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        });
+                                    }
+                                }
+                            });
                         }
-                    });
+                    };
+                    handler.postDelayed(updateRec, 300);
                 } else {
+                    userInfoList.clear();
+                    adapter.notifyDataSetChanged();
                     searchEditRef.setVisibility(View.INVISIBLE);
-                    searchEditRef.setVisibility(View.GONE);
+                    searchProgressBar.setVisibility(View.GONE);
                 }
             }
 

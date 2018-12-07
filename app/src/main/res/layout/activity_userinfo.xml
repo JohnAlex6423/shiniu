@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".activity.UserinfoActivity">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/userinfo_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            app:navigationIcon="@drawable/ic_arrow_back_white_30dp"
+            app:layout_constraintTop_toTopOf="parent">
+        </android.support.v7.widget.Toolbar>
+
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/userinfo_avatar_con"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/userinfo_bg"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/olcowlog_loading"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"/>
+
+
+
+            <com.olcow.shiniu.myview.CircleImageView
+                android:id="@+id/userinfo_avatar"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/olcowlog_ye_touxiang"
+                android:layout_margin="20dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                />
+
+            <TextView
+                android:id="@+id/userinfo_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="完全自杀手册"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/userinfo_avatar"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_margin="20dp"/>
+
+            <TextView
+                android:id="@+id/userinfo_introduction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:text="求你能不能放过我，我真的很累了，你戏很多可以，但是我要凑字数"
+                android:textColor="@color/white"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/userinfo_name"/>
+
+        </android.support.constraint.ConstraintLayout>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/userinfo_avatar_con"/>
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>
