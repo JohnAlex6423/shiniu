@@ -34,7 +34,11 @@
         <activity
             android:name=".activity.SearchActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
-        <activity android:name=".activity.UserinfoActivity"></activity>
+        <activity android:name=".activity.UserinfoActivity" />
+        <activity
+            android:name=".activity.SearchDetailsActivity"
+            android:windowSoftInputMode="stateHidden">
+        </activity>
     </application>
 
 </manifest>

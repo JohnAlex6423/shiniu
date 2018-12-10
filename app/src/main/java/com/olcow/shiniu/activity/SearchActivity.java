@@ -1,5 +1,6 @@
 package com.olcow.shiniu.activity;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
@@ -81,7 +82,11 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId==EditorInfo.IME_ACTION_SEARCH){
-                    Toast.makeText(SearchActivity.this, "点击了搜索", Toast.LENGTH_SHORT).show();
+                    if (!searchEdit.getText().toString().equals("")){
+                        startActivity(new Intent(SearchActivity.this,SearchDetailsActivity.class).putExtra("searchContent",searchEdit.getText().toString()));
+                    }else {
+                        Toast.makeText(SearchActivity.this, "搜索不能为空!", Toast.LENGTH_SHORT).show();
+                    }
                     return true;
                 }else {
                     return false;
