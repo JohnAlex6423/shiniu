@@ -28,6 +28,7 @@ import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -64,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             session = c.getString(c.getColumnIndex("session"));
             final OkHttpClient okHttpClient = new OkHttpClient();
             Request request = new Request.Builder()
-                    .url("http://39.96.40.12:7703/islogin?session="+session)
-                    .get()
+                    .url("http://39.96.40.12:7703/islogin")
+                    .post(new FormBody.Builder().add("session",session).build())
                     .build();
             Call call = okHttpClient.newCall(request);
             call.enqueue(new Callback() {
@@ -82,88 +83,97 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     String res = response.body().string();
-                    if (res.equals("no login")){
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(MainActivity.this, "您的登陆已过期!", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        sqLiteDatabase.execSQL("delete from account");
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                myText.setText("未登录");
-                            }
-                        });
-                    } else if (res.equals("redis error")){
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(MainActivity.this, "服务器异常,请反馈", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }else {
-                        JSONObject jsonObject = JSON.parseObject(res);
-                        if (jsonObject.getInteger("permission")!=0){
-                            Request request1 = new Request.Builder()
-                                    .url("http://39.96.40.12:7703/getuserinfobysession?session="+session)
-                                    .get()
-                                    .build();
-                            Call call1 = okHttpClient.newCall(request1);
-                            call1.enqueue(new Callback() {
-                                @Override
-                                public void onFailure(Call call, IOException e) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(MainActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void onResponse(Call call, Response response) throws IOException {
-                                    String userInfo = response.body().string();
-                                    if (userInfo.equals("null")){
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(MainActivity.this, "账号还未激活,请尽快激活", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    }else if(userInfo.equals("not exist session")||userInfo.equals("redis error")){
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(MainActivity.this, "服务器异常,请稍后再试", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    } else{
-                                        JSONObject jsonObject1=JSON.parseObject(userInfo);
-                                        try {
-                                            sqLiteDatabase.execSQL("delete from userinfo");
-                                            sqLiteDatabase.execSQL("insert into userinfo(uid,name,avatar,introduction) values("+jsonObject1.getInteger("uid")+",'"+jsonObject1.getString("name")+"','"+jsonObject1.getString("avatar")+"','"+jsonObject1.getString("introduction")+"')");
-                                        }catch (Exception e){
-                                            Log.e("shiniu.okhttp", e.getMessage());
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Toast.makeText(MainActivity.this, "缓存异常", Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
-                            });
-                        } else {
+                    switch (res) {
+                        case "no login":
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(MainActivity.this, "账号还未激活,如已激活,请去我的->刷新我的用户状态", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(MainActivity.this, "您的登陆已过期!", Toast.LENGTH_SHORT).show();
                                 }
                             });
-                        }
+                            sqLiteDatabase.execSQL("delete from account");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    myText.setText("未登录");
+                                }
+                            });
+                            break;
+                        case "redis error":
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MainActivity.this, "服务器异常,请反馈", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            break;
+                        default:
+                            JSONObject jsonObject = JSON.parseObject(res);
+                            if (jsonObject.getInteger("permission") != 0) {
+                                Request request1 = new Request.Builder()
+                                        .url("http://39.96.40.12:7703/getuserinfobysession")
+                                        .post(new FormBody.Builder().add("session", session).build())
+                                        .build();
+                                Call call1 = okHttpClient.newCall(request1);
+                                call1.enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(MainActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        String userInfo = response.body().string();
+                                        switch (userInfo) {
+                                            case "null":
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Toast.makeText(MainActivity.this, "账号还未激活,请尽快激活", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                                break;
+                                            case "not exist session":
+                                            case "redis error":
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Toast.makeText(MainActivity.this, "服务器异常,请稍后再试", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                                break;
+                                            default:
+                                                JSONObject jsonObject1 = JSON.parseObject(userInfo);
+                                                try {
+                                                    sqLiteDatabase.execSQL("delete from userinfo");
+                                                    sqLiteDatabase.execSQL("insert into userinfo(uid,name,avatar,introduction) values(" + jsonObject1.getInteger("uid") + ",'" + jsonObject1.getString("name") + "','" + jsonObject1.getString("avatar") + "','" + jsonObject1.getString("introduction") + "')");
+                                                } catch (Exception e) {
+                                                    Log.e("shiniu.okhttp", e.getMessage());
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            Toast.makeText(MainActivity.this, "缓存异常", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                                }
+                                                break;
+                                        }
+                                    }
+                                });
+                            } else {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(MainActivity.this, "账号还未激活,如已激活,请去我的->刷新我的用户状态", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
+                            break;
                     }
                 }
             });
@@ -201,118 +211,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         plusL.setOnClickListener(this);
         friendcL.setOnClickListener(this);
         myL.setOnClickListener(this);
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        SQLiteOpenHelper accountHelper=new AccountDatabaseHelper(MainActivity.this,"olcowsso",null,1);
-        final SQLiteDatabase sqLiteDatabase = accountHelper.getReadableDatabase();
-        Cursor c = sqLiteDatabase.rawQuery("select session,permission from account",null);
-        if (c.moveToFirst()){
-            if (!session.equals(c.getString(c.getColumnIndex("session")))){
-                session=c.getString(c.getColumnIndex("session"));
-                int permission = c.getInt(c.getColumnIndex("permission"));
-                Fragment fragment = getSupportFragmentManager().findFragmentByTag("my");
-                if (fragment!=null){
-                    change = "home";
-                    myImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_olcowlog_my));
-                    myText.setTextColor(Color.parseColor("#8A8A8A"));
-                    homeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_olcowlog_home_ye));
-                    homeText.setTextColor(Color.parseColor("#F49E38"));
-                    myText.setText("我的");
-                    getSupportFragmentManager().beginTransaction().show(getSupportFragmentManager().findFragmentByTag(change)).commit();
-                    getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-                    if (permission!=0){
-                        OkHttpClient okHttpClient = new OkHttpClient();
-                        Request request = new Request.Builder()
-                                .url("http://39.96.40.12:7703/getuserinfobysession?session="+session)
-                                .get()
-                                .build();
-                        Call call = okHttpClient.newCall(request);
-                        call.enqueue(new Callback() {
-                            @Override
-                            public void onFailure(Call call, IOException e) {
-                                Log.e("shiniu.okhttp", "获取用户网络请求错误");
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(MainActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                String userInfo = response.body().string();
-                                JSONObject jsonObject1=JSON.parseObject(userInfo);
-                                try {
-                                    sqLiteDatabase.execSQL("delete from userinfo");
-                                    sqLiteDatabase.execSQL("insert into userinfo(uid,name,avatar,introduction) values("+jsonObject1.getInteger("uid")+",'"+jsonObject1.getString("name")+"','"+jsonObject1.getString("avatar")+"','"+jsonObject1.getString("introduction")+"')");
-                                }catch (Exception e){
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(MainActivity.this, "缓存异常", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                }
-
-                            }
-                        });
-                    }
-                } else if (permission!=0){
-                    OkHttpClient okHttpClient = new OkHttpClient();
-                    Request request = new Request.Builder()
-                            .url("http://39.96.40.12:7703/getuserinfobysession?session="+session)
-                            .get()
-                            .build();
-                    Call call = okHttpClient.newCall(request);
-                    call.enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Log.e("shiniu.okhttp", "获取用户网络请求错误");
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(MainActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            String userInfo = response.body().string();
-                            JSONObject jsonObject1=JSON.parseObject(userInfo);
-                            try {
-                                sqLiteDatabase.execSQL("delete from userinfo");
-                                sqLiteDatabase.execSQL("insert into userinfo(uid,name,avatar,introduction) values("+jsonObject1.getInteger("uid")+",'"+jsonObject1.getString("name")+"','"+jsonObject1.getString("avatar")+"','"+jsonObject1.getString("introduction")+"')");
-                            }catch (Exception e){
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(MainActivity.this, "缓存异常", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-
-                        }
-                    });
-                }
-            }
-        } else {
-            Fragment fragment = getSupportFragmentManager().findFragmentByTag("my");
-            if (fragment!=null) {
-                change = "home";
-                myImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_olcowlog_my));
-                myText.setTextColor(Color.parseColor("#8A8A8A"));
-                homeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_olcowlog_home_ye));
-                homeText.setTextColor(Color.parseColor("#F49E38"));
-                myText.setText("我的");
-                getSupportFragmentManager().beginTransaction().show(getSupportFragmentManager().findFragmentByTag(change)).commit();
-                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-            }
-        }
     }
 
     @Override

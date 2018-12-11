@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -201,6 +200,7 @@ public class SearchDetailsActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            searchDetailsProgressBar.setVisibility(View.GONE);
                             searchDetailsByUid.setVisibility(View.VISIBLE);
                             Glide.with(SearchDetailsActivity.this)
                                     .load(userInfo.getAvatar())

@@ -1,16 +1,19 @@
 package com.olcow.shiniu.activity;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.olcow.shiniu.MainActivity;
 import com.olcow.shiniu.R;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
 
@@ -18,6 +21,7 @@ import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -49,8 +53,8 @@ public class SettingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder()
-                        .url("http://39.96.40.12:7703/logout?session="+session)
-                        .get()
+                        .url("http://39.96.40.12:7703/logout")
+                        .post(new FormBody.Builder().add("session",session).build())
                         .build();
                 client.newCall(request).enqueue(new Callback() {
                     @Override
@@ -69,8 +73,15 @@ public class SettingActivity extends AppCompatActivity {
                         if (res.equals("successful")){
                             sqLiteDatabase.execSQL("delete from account");
                             sqLiteDatabase.execSQL("delete from userinfo");
-                            Toast.makeText(SettingActivity.this, "已退出登陆", Toast.LENGTH_SHORT).show();
-                            finish();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Intent intent = new Intent(SettingActivity.this, MainActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                    Toast.makeText(SettingActivity.this, "退出登陆成功!", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }else {
                             runOnUiThread(new Runnable() {
                                 @Override

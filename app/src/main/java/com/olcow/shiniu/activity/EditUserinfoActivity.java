@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -48,6 +49,7 @@ import okhttp3.Response;
 public class EditUserinfoActivity extends AppCompatActivity {
     private MaterialEditText editName;
     private MaterialEditText editIntroduction;
+    private TextView editNid;
     private CircleImageView avatarImg;
     private Button saveEditUserInfoButton;
     private ProgressBar saveEditProgressBar;
@@ -64,6 +66,7 @@ public class EditUserinfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_userinfo);
         editIntroduction = findViewById(R.id.edit_edit_introduction);
         editName = findViewById(R.id.edit_edit_name);
+        editNid = findViewById(R.id.edit_nid);
         saveEditUserInfoButton = findViewById(R.id.edit_userinfo_save_button);
         saveEditProgressBar = findViewById(R.id.edit_save_progressbar);
         avatarImg = findViewById(R.id.edit_edit_avatar);
@@ -80,6 +83,7 @@ public class EditUserinfoActivity extends AppCompatActivity {
         }
         Cursor c = sqLiteDatabase.rawQuery("select *from userinfo",null);
         if (c.moveToFirst()){
+            editNid.setText("NID:"+c.getInt(c.getColumnIndex("uid")));
             editName.setText(c.getString(c.getColumnIndex("name")));
             editIntroduction.setText(c.getString(c.getColumnIndex("introduction")));
             avatar = c.getString(c.getColumnIndex("avatar"));
@@ -142,7 +146,12 @@ public class EditUserinfoActivity extends AppCompatActivity {
                         if (cursor.moveToFirst()){
                             OkHttpClient client = new OkHttpClient();
                             Request request = new Request.Builder()
-                                    .url("http://39.96.40.12:7703/changeuserinfobysession?session="+cursor.getString(cursor.getColumnIndex("session"))+"&name="+editName.getText().toString()+"&introduction="+editIntroduction.getText().toString())
+                                    .url("http://39.96.40.12:7703/changeuserinfobysession")
+                                    .post(new FormBody.Builder()
+                                            .add("session",cursor.getString(cursor.getColumnIndex("session")))
+                                            .add("name",editName.getText().toString())
+                                            .add("introduction",editIntroduction.getText().toString())
+                                            .build())
                                     .build();
                             client.newCall(request).enqueue(new Callback() {
                                 @Override
@@ -212,7 +221,7 @@ public class EditUserinfoActivity extends AppCompatActivity {
                 if (data==null){
                     return;
                 } else {
-                    final Uri resultUri = UCrop.getOutput(data);
+//                    final Uri resultUri = UCrop.getOutput(data);
                     File file = new File(getCacheDir(),"cropcache.jpeg");
                     final OkHttpClient client = new OkHttpClient.Builder()
                             .writeTimeout(30, TimeUnit.SECONDS)
@@ -245,8 +254,11 @@ public class EditUserinfoActivity extends AppCompatActivity {
                             final String imgfile = JSONArray.parseArray(res).get(0).toString();
                             final String imgsrc ="http://123.206.93.200/uploadavatar/" +imgfile;
                             Request request1 = new Request.Builder()
-                                    .url("http://39.96.40.12:7703/changeuserinfobysession?session="+session+"&avatar=http://123.206.93.200/uploadavatar/"+imgfile)
-                                    .get()
+                                    .url("http://39.96.40.12:7703/changeuserinfobysession")
+                                    .post(new FormBody.Builder()
+                                            .add("session",session)
+                                            .add("avatar","http://123.206.93.200/uploadavatar/"+imgfile)
+                                            .build())
                                     .build();
                             client.newCall(request1).enqueue(new Callback() {
                                 @Override
@@ -267,9 +279,6 @@ public class EditUserinfoActivity extends AppCompatActivity {
                                         SQLiteDatabase sqLiteDatabase = helper.getWritableDatabase();
                                         sqLiteDatabase.execSQL("update userinfo set avatar='"+imgsrc+"'");
                                         avatar = imgsrc;
-                                        Intent intent = new Intent();
-                                        intent.setAction("changemy");
-                                        LocalBroadcastManager.getInstance(EditUserinfoActivity.this).sendBroadcast(intent);
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
@@ -317,6 +326,14 @@ public class EditUserinfoActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        finish();
+        Intent intent = new Intent();
+        intent.setAction("changemy");
+        LocalBroadcastManager.getInstance(EditUserinfoActivity.this).sendBroadcast(intent);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:////主键id 必须这样写
@@ -349,7 +366,12 @@ public class EditUserinfoActivity extends AppCompatActivity {
                         if (cursor.moveToFirst()){
                             OkHttpClient client = new OkHttpClient();
                             Request request = new Request.Builder()
-                                    .url("http://39.96.40.12:7703/changeuserinfobysession?session="+cursor.getString(cursor.getColumnIndex("session"))+"&name="+editName.getText().toString()+"&introduction="+editIntroduction.getText().toString())
+                                    .url("http://39.96.40.12:7703/changeuserinfobysession")
+                                    .post(new FormBody.Builder()
+                                            .add("session",cursor.getString(cursor.getColumnIndex("session")))
+                                            .add("name",editName.getText().toString())
+                                            .add("introduction",editIntroduction.getText().toString())
+                                            .build())
                                     .build();
                             client.newCall(request).enqueue(new Callback() {
                                 @Override

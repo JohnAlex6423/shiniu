@@ -35,8 +35,6 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"/>
 
-
-
                 <com.olcow.shiniu.myview.CircleImageView
                     android:id="@+id/userinfo_avatar"
                     android:layout_width="70dp"
@@ -73,10 +71,57 @@
                     app:layout_constraintTop_toBottomOf="@+id/userinfo_name"/>
 
             </android.support.constraint.ConstraintLayout>
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/userinfo_test"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginRight="10dp"
+                >
+                <LinearLayout
+                    android:id="@+id/userinfo_add"
+                    android:background="@drawable/bg_sq_trans"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintRight_toLeftOf="@+id/userinfo_send"
+                    app:layout_constraintLeft_toLeftOf="parent">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="10000dp"/>
+                    <ImageView
+                        android:paddingBottom="5dp"
+                        android:paddingTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_add_while_24dp"/>
+
+                    <TextView
+                        android:paddingRight="5dp"
+                        android:paddingBottom="5dp"
+                        android:paddingTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:text="关注"/>
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/userinfo_send"
+                    android:background="@drawable/bg_sq_trans"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_send_white_24dp"
+                    android:padding="5dp"
+                    android:layout_marginLeft="2dp"
+                    app:layout_constraintLeft_toRightOf="@+id/userinfo_add"
+                    app:layout_constraintRight_toRightOf="parent"
+                    />
+
+            </android.support.constraint.ConstraintLayout>
         </android.support.constraint.ConstraintLayout>
     </com.olcow.shiniu.myview.MyScrollView>
 

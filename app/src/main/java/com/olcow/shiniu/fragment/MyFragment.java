@@ -8,9 +8,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -34,13 +32,11 @@ import com.olcow.shiniu.activity.LoginActivity;
 import com.olcow.shiniu.activity.SettingActivity;
 import com.olcow.shiniu.entity.UserInfo;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
-import com.yalantis.ucrop.UCrop;
-
-import java.io.File;
 import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -70,6 +66,10 @@ public class MyFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        View viewMy = inflater.inflate(R.layout.fragment_my,container,false);
+        myAvatarImage = viewMy.findViewById(R.id.my_avatar);
+        myNameText = viewMy.findViewById(R.id.my_name);
+        myIntroduction = viewMy.findViewById(R.id.my_introduction);
         SQLiteOpenHelper accountHelper = new AccountDatabaseHelper(getActivity(),"olcowsso",null,1);
         final SQLiteDatabase sqLiteDatabase = accountHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select session,uid,permission from account",null);
@@ -91,8 +91,8 @@ public class MyFragment extends Fragment {
                     public void onClick(View v) {
                         final OkHttpClient okHttpClient = new OkHttpClient();
                         final Request request = new Request.Builder()
-                                .url("http://39.96.40.12:7703/updatesessionbypermission?session="+session)
-                                .get()
+                                .url("http://39.96.40.12:7703/updatesessionbypermission")
+                                .post(new FormBody.Builder().add("session",session).build())
                                 .build();
                         Call call = okHttpClient.newCall(request);
                         call.enqueue(new Callback() {
@@ -140,7 +140,8 @@ public class MyFragment extends Fragment {
                                         break;
                                     case "update successful":
                                         Request request1 = new Request.Builder()
-                                                .url("http://39.96.40.12:7703/islogin?session=" + session)
+                                                .url("http://39.96.40.12:7703/islogin")
+                                                .post(new FormBody.Builder().add("session",session).build())
                                                 .build();
                                         Call call1 = okHttpClient.newCall(request1);
                                         call1.enqueue(new Callback() {
@@ -194,8 +195,8 @@ public class MyFragment extends Fragment {
                             coolButton = false;
                             OkHttpClient okHttpClient = new OkHttpClient();
                             Request request = new Request.Builder()
-                                    .url("http://39.96.40.12:7703/sendactivityemail?session="+session)
-                                    .get()
+                                    .url("http://39.96.40.12:7703/sendactivityemail")
+                                    .post(new FormBody.Builder().add("session",session).build())
                                     .build();
                             okHttpClient.newCall(request).enqueue(new Callback() {
                                 @Override
@@ -255,18 +256,15 @@ public class MyFragment extends Fragment {
                 });
                 return view;
             } else {
-                View view;
                 UserInfo userInfo = new UserInfo();
                 Cursor userC = sqLiteDatabase.rawQuery("select *from userinfo",null);
                 if (userC.moveToFirst()){
-                     view = inflater.inflate(R.layout.fragment_my,container,false);
                      userInfo.setAvatar(userC.getString(userC.getColumnIndex("avatar")));
                      userInfo.setName(userC.getString(userC.getColumnIndex("name")));
                      userInfo.setUid(userC.getInt(userC.getColumnIndex("uid")));
                      userInfo.setIntroduction(userC.getString(userC.getColumnIndex("introduction")));
-                     myAvatarImage = view.findViewById(R.id.my_avatar);
-                     LinearLayout myInfo = view.findViewById(R.id.my_info);
-                     ImageView settings = view.findViewById(R.id.my_setting);
+                     LinearLayout myInfo = viewMy.findViewById(R.id.my_info);
+                     ImageView settings = viewMy.findViewById(R.id.my_setting);
                      settings.setOnClickListener(new View.OnClickListener() {
                          @Override
                          public void onClick(View v) {
@@ -284,27 +282,19 @@ public class MyFragment extends Fragment {
                             startActivity(new Intent(getActivity(),EditUserinfoActivity.class));
                         }
                     });
-                    myNameText = view.findViewById(R.id.my_name);
-                    myIntroduction = view.findViewById(R.id.my_introduction);
-                    if (!userInfo.getName().equals("defaultusername")){
-                        myNameText.setText(userInfo.getName());
-                        myIntroduction.setText(userInfo.getIntroduction());
-                    } else {
-                        myNameText.setText("默认昵称");
-                        myIntroduction.setText("这个人并没有简介~");
-                    }
+                    myNameText.setText(userInfo.getName());
+                    myIntroduction.setText(userInfo.getIntroduction());
                 } else {
-                    view = inflater.inflate(R.layout.fragment_my,container,false);
+                    viewMy = inflater.inflate(R.layout.fragment_my,container,false);
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getActivity(), "获取用户缓存失败,请关闭重试", Toast.LENGTH_SHORT).show();
                         }
                     });
-                    TextView myNameText = view.findViewById(R.id.my_name);
                     myNameText.setText("缓存失败,请退出重试");
                 }
-                return view;
+                return viewMy;
             }
         } else {
             View view = inflater.inflate(R.layout.fragment_my_nologin,container,false);
@@ -332,11 +322,11 @@ public class MyFragment extends Fragment {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            SQLiteOpenHelper helper = new AccountDatabaseHelper(getActivity(),"olcowsso",null,1);
+            SQLiteOpenHelper helper = new AccountDatabaseHelper(context,"olcowsso",null,1);
             SQLiteDatabase sqLiteDatabase = helper.getReadableDatabase();
             Cursor cursor = sqLiteDatabase.rawQuery("select avatar,name,introduction from userinfo",null);
             if (cursor.moveToFirst()){
-                Glide.with(getActivity())
+                Glide.with(context)
                         .load(cursor.getString(cursor.getColumnIndex("avatar")))
                         .into(myAvatarImage);
                 myNameText.setText(cursor.getString(cursor.getColumnIndex("name")));

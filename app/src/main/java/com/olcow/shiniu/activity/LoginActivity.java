@@ -3,6 +3,7 @@ package com.olcow.shiniu.activity;
 import android.animation.AnimatorSet;
 import android.animation.LayoutTransition;
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.olcow.shiniu.MainActivity;
 import com.olcow.shiniu.R;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
 import com.rengwuxian.materialedittext.MaterialEditText;
@@ -209,8 +211,8 @@ public class LoginActivity extends AppCompatActivity {
                                 });
                             } else if (res.length()==32){
                                         Request request1 = new Request.Builder()
-                                                .url("http://39.96.40.12:7703/islogin?session="+res)
-                                                .get()
+                                                .url("http://39.96.40.12:7703/islogin")
+                                                .post(new FormBody.Builder().add("session",res).build())
                                                 .build();
                                         Call call1 = okHttpClient.newCall(request1);
                                         call1.enqueue(new Callback() {
@@ -260,6 +262,9 @@ public class LoginActivity extends AppCompatActivity {
                                                     runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
+                                                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                            startActivity(intent);
                                                             Toast.makeText(LoginActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
                                                         }
                                                     });
@@ -387,8 +392,8 @@ public class LoginActivity extends AppCompatActivity {
                                                 });
                                             } else if (res.length()==32){
                                                 Request request1 = new Request.Builder()
-                                                        .url("http://39.96.40.12:7703/islogin?session="+res)
-                                                        .get()
+                                                        .url("http://39.96.40.12:7703/islogin")
+                                                        .post(new FormBody.Builder().add("session",res).build())
                                                         .build();
                                                 Call call1 = okHttpClient.newCall(request1);
                                                 call1.enqueue(new Callback() {
@@ -438,10 +443,12 @@ public class LoginActivity extends AppCompatActivity {
                                                             runOnUiThread(new Runnable() {
                                                                 @Override
                                                                 public void run() {
+                                                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                                    startActivity(intent);
                                                                     Toast.makeText(LoginActivity.this, "自动登陆成功", Toast.LENGTH_SHORT).show();
                                                                 }
                                                             });
-                                                            finish();
                                                         }
                                                     }
                                                 });
