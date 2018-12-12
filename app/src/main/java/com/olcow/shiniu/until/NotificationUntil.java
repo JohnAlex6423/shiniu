@@ -38,7 +38,7 @@ public class NotificationUntil extends ContextWrapper {
                 .setContentTitle(title)
                 .setContentText(content)
                 .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setSmallIcon(R.drawable.ic_olcowlog_50dp)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
     }
@@ -49,7 +49,7 @@ public class NotificationUntil extends ContextWrapper {
                 .setWhen(System.currentTimeMillis())
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setSmallIcon(R.drawable.ic_olcowlog_50dp)
                 .setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
     }

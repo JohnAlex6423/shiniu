@@ -49,7 +49,7 @@ public class MessageFragment extends Fragment {
         fragments.add(new MessageFriendsFragment());
         List<String> titles = new ArrayList<>();
         titles.add("消息");
-        titles.add("朋友");
+        titles.add("关注");
         viewPager.setAdapter(new ViewPageAdapter(getFragmentManager(),getActivity(),fragments,titles));
         tabLayout.setupWithViewPager(viewPager);
         searchCon.setOnClickListener(new View.OnClickListener() {

@@ -84,7 +84,6 @@ public class SearchDetailsActivity extends AppCompatActivity {
         adapter = new SearchResultAdapt(userInfoList);
         detailsList.setAdapter(adapter);
         detailsList.setItemAnimator(new DefaultItemAnimator());
-        detailsList.addItemDecoration(new DividerItemDecoration(SearchDetailsActivity.this,DividerItemDecoration.VERTICAL));
         searchNoneText = findViewById(R.id.search_details_none);
         searchNoInternetText = findViewById(R.id.search_details_nointernet);
         searchDetailsProgressBar = findViewById(R.id.search_details_progressbar);

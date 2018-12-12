@@ -12,9 +12,27 @@
         />
 
     <TextView
+        android:id="@+id/message_friend_nobody"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="friend"
-        app:layout_constraintTop_toBottomOf="@id/message_friend_head_view"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/message_friend_head_view"
+        android:text="你还没有关注任何人,快去关注吧~"
+        android:visibility="gone"/>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/message_friend_pullref"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/message_friend_head_view">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/message_friend_recylist"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </android.support.v7.widget.RecyclerView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </android.support.constraint.ConstraintLayout>

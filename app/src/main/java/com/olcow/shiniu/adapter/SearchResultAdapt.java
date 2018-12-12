@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -21,7 +22,7 @@ import java.util.List;
 public class SearchResultAdapt extends RecyclerView.Adapter<SearchResultAdapt.ViewHolder> {
 
     private List<UserInfo> userInfoList;
-    RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.olcowlog_ye_touxiang);
+    private RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.olcowlog_ye_touxiang);
 
     public SearchResultAdapt(List<UserInfo> userInfoList){
         this.userInfoList = userInfoList;
@@ -49,6 +50,13 @@ public class SearchResultAdapt extends RecyclerView.Adapter<SearchResultAdapt.Vi
                 Intent intent = new Intent(viewHolder.itemView.getContext(),UserinfoActivity.class);
                 intent.putExtra("userinfo",userInfoList.get(i));
                 viewHolder.itemView.getContext().startActivity(intent);
+            }
+        });
+        viewHolder.resultCon.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(viewHolder.itemView.getContext(), "长按了,兄弟", Toast.LENGTH_SHORT).show();
+                return true;
             }
         });
     }

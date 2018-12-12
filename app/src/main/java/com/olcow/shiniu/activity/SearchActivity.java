@@ -74,7 +74,6 @@ public class SearchActivity extends AppCompatActivity {
         adapter = new SearchResultAdapt(userInfoList);
         resultList.setAdapter(adapter);
         resultList.setItemAnimator(new DefaultItemAnimator());
-        resultList.addItemDecoration(new DividerItemDecoration(SearchActivity.this,DividerItemDecoration.VERTICAL));
         okHttpClient = new OkHttpClient();
 
         searchEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
