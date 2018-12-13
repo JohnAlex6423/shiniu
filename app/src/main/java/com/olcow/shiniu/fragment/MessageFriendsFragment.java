@@ -1,11 +1,15 @@
 package com.olcow.shiniu.fragment;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -47,6 +51,8 @@ public class MessageFriendsFragment extends Fragment {
     private OkHttpClient okHttpClient;
     private SQLiteDatabase sqLiteDatabase;
     private String session;
+    private MyBroadcastReceiver myBroadcastReceiver;
+    private LocalBroadcastManager localBroadcastManager;
 
     public MessageFriendsFragment() {
         // Required empty public constructor
@@ -80,11 +86,15 @@ public class MessageFriendsFragment extends Fragment {
         friendPullRef.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Toast.makeText(getActivity(), "刷新执行", Toast.LENGTH_SHORT).show();
-                friendPullRef.setRefreshing(false);
+                getFriend();
             }
         });
         getFriend();
+        myBroadcastReceiver = new MyBroadcastReceiver();
+        localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("delfriend");
+        localBroadcastManager.registerReceiver(myBroadcastReceiver,intentFilter);
         return view;
     }
 
@@ -92,7 +102,12 @@ public class MessageFriendsFragment extends Fragment {
         if (okHttpClient==null){
             okHttpClient = new OkHttpClient();
         }
-        friendPullRef.setRefreshing(true);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                friendPullRef.setRefreshing(true);
+            }
+        });
         okHttpClient.newCall(new Request.Builder()
                 .url("http://39.96.40.12:1008/getfriends")
                 .post(new FormBody.Builder()
@@ -140,6 +155,7 @@ public class MessageFriendsFragment extends Fragment {
                                 @Override
                                 public void run() {
                                     friendPullRef.setRefreshing(false);
+                                    userInfoList.clear();
                                     friendNobody.setVisibility(View.VISIBLE);
                                 }
                             });
@@ -152,6 +168,7 @@ public class MessageFriendsFragment extends Fragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                friendNobody.setVisibility(View.GONE);
                                 friendPullRef.setRefreshing(false);
                                 adapter.notifyDataSetChanged();
                             }
@@ -160,5 +177,75 @@ public class MessageFriendsFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void delfriend(int bUid){
+        if (okHttpClient==null){
+            okHttpClient = new OkHttpClient();
+        }
+        if (bUid!=0){
+            okHttpClient.newCall(new Request.Builder()
+                    .url("http://39.96.40.12:1008/delfriend")
+                    .post(new FormBody.Builder()
+                            .add("session",session)
+                            .add("buid", String.valueOf(bUid))
+                            .build())
+                    .build()).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity(), "网络加载失败,请重试", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String res  = response.body().string();
+                    switch (res) {
+                        case "no login":
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getActivity(), "当前登陆失效", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            break;
+                        case "fail":
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getActivity(), "删除失败,请重试", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            break;
+                        case "successful":
+                            getFriend();
+                            break;
+                        default:
+                            Toast.makeText(getActivity(), "服务器错误,请稍后重试", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+            });
+        } else {
+            Toast.makeText(getActivity(), "系统错误,请稍后重试", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    class MyBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            delfriend(intent.getIntExtra("userinfoid",0));
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        localBroadcastManager.unregisterReceiver(myBroadcastReceiver);
     }
 }

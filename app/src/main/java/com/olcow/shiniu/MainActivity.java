@@ -214,6 +214,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        getSupportFragmentManager().beginTransaction().addToBackStack(null);
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.homel:

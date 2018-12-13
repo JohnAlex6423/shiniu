@@ -17,6 +17,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="50dp"
         app:layout_constraintTop_toBottomOf="@+id/message_friend_head_view"
         android:text="你还没有关注任何人,快去关注吧~"
         android:visibility="gone"/>

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.olcow.shiniu.R;
+import com.olcow.shiniu.activity.ChatActivity;
 import com.olcow.shiniu.activity.SearchDetailsActivity;
 
 /**
@@ -37,8 +38,7 @@ public class HomeFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(),SearchDetailsActivity.class);
-                intent.putExtra("searchContent","完全自杀");
+                Intent intent = new Intent(getActivity(),ChatActivity.class);
                 startActivity(intent);
             }
         });

@@ -37,8 +37,10 @@
         <activity android:name=".activity.UserinfoActivity" />
         <activity
             android:name=".activity.SearchDetailsActivity"
-            android:windowSoftInputMode="stateHidden">
-        </activity>
+            android:windowSoftInputMode="stateHidden"></activity>
+        <activity
+            android:name=".activity.ChatActivity"
+            android:theme="@style/SettingsTheme"></activity>
     </application>
 
 </manifest>
