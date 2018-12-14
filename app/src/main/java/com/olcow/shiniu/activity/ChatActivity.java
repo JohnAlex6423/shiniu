@@ -3,6 +3,7 @@ package com.olcow.shiniu.activity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.olcow.shiniu.R;
 
