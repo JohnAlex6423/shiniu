@@ -59,7 +59,7 @@ public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHo
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
         viewHolder.nameText.setText(userInfoList.get(i).getName());
-        viewHolder.introductionText.setText(userInfoList.get(i).getName());
+        viewHolder.introductionText.setText(userInfoList.get(i).getIntroduction());
         if (requestOptions == null){
             requestOptions = new RequestOptions().placeholder(R.drawable.olcowlog_ye_touxiang);
         }

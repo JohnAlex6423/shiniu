@@ -9,12 +9,14 @@ public class Message {
     private String time;
     private int fromId;
     private int sendOrRecipient;
+    private int showTime;
 
-    public Message(String content, String time, int fromId, int sendOrRecipient) {
+    public Message(String content, String time, int fromId, int sendOrRecipient,int showTime) {
         this.content = content;
         this.time = time;
         this.fromId = fromId;
         this.sendOrRecipient = sendOrRecipient;
+        this.showTime = showTime;
     }
 
     public String getContent() {
@@ -49,4 +51,11 @@ public class Message {
         this.sendOrRecipient = sendOrRecipient;
     }
 
+    public int getShowTime() {
+        return showTime;
+    }
+
+    public void setShowTime(int showTime) {
+        this.showTime = showTime;
+    }
 }
