@@ -1,7 +1,6 @@
 package com.olcow.shiniu.adapter;
 
-import android.icu.util.Calendar;
-import android.media.Image;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,22 +12,22 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.olcow.shiniu.R;
+import com.olcow.shiniu.activity.UserinfoActivity;
 import com.olcow.shiniu.entity.Message;
-
-import org.w3c.dom.Text;
+import com.olcow.shiniu.entity.UserInfo;
 
 import java.util.List;
 
 public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
 
-    List<Message> messages;
-    String sendAvatarUrl;
-    String recipientAvatarUrl;
+    private List<Message> messages;
+    private UserInfo sendUserInfo;
+    private UserInfo recipientUserInfo;
 
-    public ChatAdapter(List<Message> messages,String sendAvatarUrl,String recipientAvatarUrl){
+    public ChatAdapter(List<Message> messages, UserInfo sendUserInfo, UserInfo recipientUserInfo) {
         this.messages = messages;
-        this.sendAvatarUrl = sendAvatarUrl;
-        this.recipientAvatarUrl = recipientAvatarUrl;
+        this.sendUserInfo = sendUserInfo;
+        this.recipientUserInfo = recipientUserInfo;
     }
 
     @NonNull
@@ -45,17 +44,25 @@ public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
         if (messages.get(i).getSendOrRecipient()==Message.RECIPIENT){
             if (messages.get(i).getShowTime()==0){
                 viewHolder.timeText.setVisibility(View.VISIBLE);
                 viewHolder.timeText.setText(messages.get(i).getTime());
             }
             Glide.with(viewHolder.itemView.getContext())
-                    .load(recipientAvatarUrl)
+                    .load(recipientUserInfo.getAvatar())
                     .into(viewHolder.recipientAvatar);
             viewHolder.recipientText.setText(messages.get(i).getContent());
             viewHolder.recipientCon.setVisibility(View.VISIBLE);
+            viewHolder.recipientAvatar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(viewHolder.itemView.getContext(),UserinfoActivity.class);
+                    intent.putExtra("userinfo",recipientUserInfo);
+                    viewHolder.itemView.getContext().startActivity(intent);
+                }
+            });
         }
         if (messages.get(i).getSendOrRecipient()==Message.SEND){
             if (messages.get(i).getShowTime()==0){
@@ -63,10 +70,18 @@ public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
                 viewHolder.timeText.setText(messages.get(i).getTime());
             }
             Glide.with(viewHolder.itemView.getContext())
-                    .load(sendAvatarUrl)
+                    .load(sendUserInfo.getAvatar())
                     .into(viewHolder.sendAvatar);
             viewHolder.sendText.setText(messages.get(i).getContent());
             viewHolder.sendCon.setVisibility(View.VISIBLE);
+            viewHolder.sendAvatar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(viewHolder.itemView.getContext(),UserinfoActivity.class);
+                    intent.putExtra("userinfo",sendUserInfo);
+                    viewHolder.itemView.getContext().startActivity(intent);
+                }
+            });
         }
     }
 

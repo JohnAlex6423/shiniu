@@ -53,6 +53,8 @@ public class MessageFriendsFragment extends Fragment {
     private String session;
     private MyBroadcastReceiver myBroadcastReceiver;
     private LocalBroadcastManager localBroadcastManager;
+    private UserInfo sendUserinfo;
+    private TextView errorText;
 
     public MessageFriendsFragment() {
         // Required empty public constructor
@@ -68,9 +70,8 @@ public class MessageFriendsFragment extends Fragment {
         friendPullRef.setColorSchemeColors(-745928);
         friendsList = view.findViewById(R.id.message_friend_recylist);
         friendNobody = view.findViewById(R.id.message_friend_nobody);
+        errorText = view.findViewById(R.id.message_friend_error);
         userInfoList = new ArrayList<>();
-        adapter = new FriendListAdapt(userInfoList);
-        friendsList.setAdapter(adapter);
         friendsList.setItemAnimator(new DefaultItemAnimator());
         friendsList.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
         sqLiteDatabase =
@@ -79,10 +80,21 @@ public class MessageFriendsFragment extends Fragment {
         Cursor cursor = sqLiteDatabase.rawQuery("select session from account",null);
         if (cursor.moveToFirst()){
             session = cursor.getString(cursor.getColumnIndex("session"));
+            Cursor c = sqLiteDatabase.rawQuery("select * from userinfo",null);
+            if (c.moveToFirst()){
+                sendUserinfo = new UserInfo(c.getInt(c.getColumnIndex("uid")),c.getString(c.getColumnIndex("name")),c.getString(c.getColumnIndex("avatar")),c.getString(c.getColumnIndex("introduction")));
+            }else{
+                Toast.makeText(getActivity(), "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                sendUserinfo = null;
+                errorText.setVisibility(View.VISIBLE);
+                friendPullRef.setVisibility(View.GONE);
+            }
         } else {
-            session = "sdf";
+            session = null;
             Toast.makeText(getActivity(), "你还未登陆", Toast.LENGTH_SHORT).show();
         }
+        adapter = new FriendListAdapt(userInfoList,sendUserinfo);
+        friendsList.setAdapter(adapter);
         friendPullRef.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -99,6 +111,16 @@ public class MessageFriendsFragment extends Fragment {
     }
 
     private void getFriend(){
+        if (session == null){
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    friendPullRef.setRefreshing(false);
+                    Toast.makeText(getActivity(), "你还未登录!", Toast.LENGTH_SHORT).show();
+                }
+            });
+            return;
+        }
         if (okHttpClient==null){
             okHttpClient = new OkHttpClient();
         }
@@ -180,6 +202,15 @@ public class MessageFriendsFragment extends Fragment {
     }
 
     private void delfriend(int bUid){
+        if (session == null){
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getActivity(), "你还未登陆或已过期请重新登陆", Toast.LENGTH_SHORT).show();
+                }
+            });
+            return;
+        }
         if (okHttpClient==null){
             okHttpClient = new OkHttpClient();
         }

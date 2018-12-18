@@ -1,13 +1,9 @@
 package com.olcow.shiniu.adapter;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -21,31 +17,21 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.olcow.shiniu.R;
-import com.olcow.shiniu.activity.EditUserinfoActivity;
+import com.olcow.shiniu.activity.ChatActivity;
 import com.olcow.shiniu.entity.UserInfo;
-import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
 
-import java.io.IOException;
 import java.util.List;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHolder> {
 
     private List<UserInfo> userInfoList;
     private RequestOptions requestOptions;
-    private OkHttpClient okHttpClient;
-    private SQLiteDatabase sqLiteDatabase;
-    private String session;
+    private UserInfo sendUserInfo;
 
 
-    public FriendListAdapt(List<UserInfo> userInfoList){
+    public FriendListAdapt(List<UserInfo> userInfoList,UserInfo sendUserInfo){
         this.userInfoList = userInfoList;
+        this.sendUserInfo = sendUserInfo;
     }
 
     @NonNull
@@ -67,11 +53,6 @@ public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHo
                 .load(userInfoList.get(i).getAvatar())
                 .apply(requestOptions)
                 .into(viewHolder.avatarImg);
-        viewHolder.friendcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
         viewHolder.moreImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -92,6 +73,19 @@ public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHo
                 alertDialog.show();
             }
         });
+        viewHolder.friendCon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (sendUserInfo!=null){
+                    Intent intent = new Intent(viewHolder.itemView.getContext(),ChatActivity.class);
+                    intent.putExtra("senduserinfo",sendUserInfo);
+                    intent.putExtra("recipientuserinfo",userInfoList.get(i));
+                    viewHolder.itemView.getContext().startActivity(intent);
+                }else {
+                    Toast.makeText(viewHolder.itemView.getContext(), "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -104,15 +98,14 @@ public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHo
         TextView introductionText;
         ImageView avatarImg;
         ImageView moreImg;
-        ConstraintLayout friendcon;
+        ConstraintLayout friendCon;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             nameText = itemView.findViewById(R.id.recy_friends_name);
             introductionText = itemView.findViewById(R.id.recy_friends_introduction);
             avatarImg = itemView.findViewById(R.id.recy_friends_avatar);
             moreImg = itemView.findViewById(R.id.recy_friends_more);
-            friendcon = itemView.findViewById(R.id.recy_friends);
-
+            friendCon = itemView.findViewById(R.id.recy_friends);
         }
     }
 }

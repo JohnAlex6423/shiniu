@@ -132,7 +132,7 @@ public class UserinfoActivity extends Activity {
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    finish();
+                    onBackPressed();
                 }
             });
             myScrollView.setOnScrollListener(new MyScrollView.OnScrollListener() {
@@ -234,7 +234,6 @@ public class UserinfoActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        finish();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -245,6 +244,7 @@ public class UserinfoActivity extends Activity {
                     }
                 });
             }
-        },500);
+        },200);
+        finish();
     }
 }

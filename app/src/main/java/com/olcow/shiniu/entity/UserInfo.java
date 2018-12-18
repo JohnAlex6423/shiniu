@@ -9,6 +9,16 @@ public class UserInfo implements Serializable {
     private String avatar;
     private String introduction;
 
+    public UserInfo(int uid, String name, String avatar, String introduction) {
+        this.uid = uid;
+        this.name = name;
+        this.avatar = avatar;
+        this.introduction = introduction;
+    }
+
+    public UserInfo() {
+    }
+
     public int getUid() {
         return uid;
     }
