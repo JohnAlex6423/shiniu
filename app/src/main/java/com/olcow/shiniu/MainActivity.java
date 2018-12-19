@@ -2,6 +2,7 @@ package com.olcow.shiniu;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -18,10 +19,12 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.olcow.shiniu.entity.UserInfo;
 import com.olcow.shiniu.fragment.FriendcFragment;
 import com.olcow.shiniu.fragment.HomeFragment;
 import com.olcow.shiniu.fragment.MessageFragment;
 import com.olcow.shiniu.fragment.MyFragment;
+import com.olcow.shiniu.service.GetMessageService;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
 
 import java.io.IOException;
@@ -152,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                 try {
                                                     sqLiteDatabase.execSQL("delete from userinfo");
                                                     sqLiteDatabase.execSQL("insert into userinfo(uid,name,avatar,introduction) values(" + jsonObject1.getInteger("uid") + ",'" + jsonObject1.getString("name") + "','" + jsonObject1.getString("avatar") + "','" + jsonObject1.getString("introduction") + "')");
+
                                                 } catch (Exception e) {
                                                     Log.e("shiniu.okhttp", e.getMessage());
                                                     runOnUiThread(new Runnable() {
@@ -161,6 +165,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                         }
                                                     });
                                                 }
+                                                startService(new Intent(MainActivity.this,GetMessageService.class)
+                                                        .putExtra("senduserinfo",
+                                                                new UserInfo(jsonObject1.getInteger("uid"),
+                                                                        jsonObject1.getString("name"),
+                                                                        jsonObject1.getString("avatar"),
+                                                                        jsonObject1.getString("introduction")))
+                                                        .putExtra("session",session));
                                                 break;
                                         }
                                     }

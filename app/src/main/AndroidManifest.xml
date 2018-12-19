@@ -13,6 +13,9 @@
         android:roundIcon="@drawable/ic_olcowlog_50dp"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <service android:name=".service.GetMessageService"></service>
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

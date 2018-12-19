@@ -1,6 +1,7 @@
 package com.olcow.shiniu.fragment;
 
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -14,13 +15,14 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.olcow.shiniu.R;
 import com.olcow.shiniu.entity.Message;
 import com.olcow.shiniu.entity.MessagePro;
+import com.olcow.shiniu.service.GetMessageService;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
 import com.olcow.shiniu.sqlite.ChatDatabaseHelper;
+import com.olcow.shiniu.until.TimeType;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,6 +70,8 @@ public class HomeFragment extends Fragment {
         }
         View view = inflater.inflate(R.layout.fragment_home,container,false);
         Button button = view.findViewById(R.id.startactivitybutton);
+        Button button1 = view.findViewById(R.id.home_test);
+        Button button2 = view.findViewById(R.id.home_service_text);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,18 +101,47 @@ public class HomeFragment extends Fragment {
                             for (String key:keys){
                                 Log.e("shiniu", "onResponse: "+key);
                                 for (MessagePro messagePro : JSON.parseArray(jsonObject.getString(key),MessagePro.class)){
-                                    Log.e("shiniu", messagePro.getContent());
-                                    sqlMessage.execSQL("insert into message(uid,date,content) values("+key+","+messagePro.getDate()+",'"+messagePro.getContent()+"')");
+                                    Log.e("zhixing", messagePro.getContent());
+                                    sqlMessage.execSQL("insert into message(uid,date,recipientorsend,content) values("+key+","+messagePro.getDate()+",0,'"+messagePro.getContent()+"')");
                                 }
-                            }
-                            Cursor c = sqlMessage.rawQuery("select *from message where uid=1023",null);
-                            while (c.moveToNext()){
-                                Log.e("shiniu","bianli="+c.getString(c.getColumnIndex("content")));
-                                List<Message> messages = new ArrayList<>();
                             }
                         }
                     }
                 });
+            }
+        });
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (sqlMessage==null){
+                    sqlMessage = new ChatDatabaseHelper(getActivity(),"chatmessage",null,1).getReadableDatabase();
+                }
+                Cursor c = sqlMessage.rawQuery("select *from message where uid=1023 order by date desc limit 0,20",null);
+                List<Message> messages = new ArrayList<>();
+                if (c.moveToLast()){
+                    long cacheTime;
+                    cacheTime = c.getLong(c.getColumnIndex("date"));
+                    messages.add(new Message(c.getString(c.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),c.getInt(c.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
+                    while (c.moveToPrevious()){
+                        long cacheTimeNext = c.getLong(c.getColumnIndex("date"));
+                        if (cacheTime - cacheTimeNext>600000){
+                            cacheTime = cacheTimeNext;
+                            messages.add(new Message(c.getString(c.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),c.getInt(c.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
+                        } else {
+                            cacheTime = cacheTimeNext;
+                            messages.add(new Message(c.getString(c.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),c.getInt(c.getColumnIndex("recipientorsend")),Message.NOSHOWTIME));
+                        }
+                    }
+                }
+                for (Message message:messages){
+                    Log.e("shiniu", "content:"+message.getContent()+"time:"+message.getTime()+"showtime:"+message.getShowTime()+"rors:"+message.getSendOrRecipient());
+                }
+            }
+        });
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().startService(new Intent(getActivity(), GetMessageService.class).putExtra("test","testaaa"));
             }
         });
         return view;

@@ -4,17 +4,17 @@ public class Message {
 
     public static final int RECIPIENT = 0;
     public static final int SEND = 1;
+    public static final int NOSHOWTIME = 1;
+    public static final int ISSHOWTIME = 0;
 
     private String content;
     private String time;
-    private int fromId;
     private int sendOrRecipient;
     private int showTime;
 
-    public Message(String content, String time, int fromId, int sendOrRecipient,int showTime) {
+    public Message(String content, String time, int sendOrRecipient,int showTime) {
         this.content = content;
         this.time = time;
-        this.fromId = fromId;
         this.sendOrRecipient = sendOrRecipient;
         this.showTime = showTime;
     }
@@ -33,14 +33,6 @@ public class Message {
 
     public void setTime(String time) {
         this.time = time;
-    }
-
-    public int getFromId() {
-        return fromId;
-    }
-
-    public void setFromId(int fromId) {
-        this.fromId = fromId;
     }
 
     public int getSendOrRecipient() {

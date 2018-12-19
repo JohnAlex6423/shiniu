@@ -1,8 +1,8 @@
 package com.olcow.shiniu.entity;
 
 public class MessagePro {
-    private String content;
 
+    private String content;
     private long date;
 
     public MessagePro(String content, long date) {
