@@ -31,9 +31,8 @@ public class SearchResultAdapt extends RecyclerView.Adapter<SearchResultAdapt.Vi
     @NonNull
     @Override
     public SearchResultAdapt.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        SearchResultAdapt.ViewHolder holder = new SearchResultAdapt.ViewHolder(LayoutInflater.from(
+        return new SearchResultAdapt.ViewHolder(LayoutInflater.from(
                 viewGroup.getContext()).inflate(R.layout.recy_search_result,viewGroup,false));
-        return holder;
     }
 
     @Override

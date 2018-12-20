@@ -99,7 +99,7 @@ public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHo
         ImageView avatarImg;
         ImageView moreImg;
         ConstraintLayout friendCon;
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             nameText = itemView.findViewById(R.id.recy_friends_name);
             introductionText = itemView.findViewById(R.id.recy_friends_introduction);

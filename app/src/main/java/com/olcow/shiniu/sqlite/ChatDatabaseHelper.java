@@ -21,7 +21,7 @@ public class ChatDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table message(uid integer,date integer,recipientorsend integer,content varchar(256))");
-        db.execSQL("create table nowmessage(uid integer primary key,name varchar(32),introduction varchar(256),avatar varchar(128),date integer,content varchar(256))");
+        db.execSQL("create table nowmessage(uid integer primary key,name varchar(32),introduction varchar(256),avatar varchar(128),date integer,content varchar(256),count integer)");
     }
 
     @Override

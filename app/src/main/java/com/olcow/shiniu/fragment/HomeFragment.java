@@ -141,7 +141,7 @@ public class HomeFragment extends Fragment {
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().startService(new Intent(getActivity(), GetMessageService.class).putExtra("test","testaaa"));
+                getActivity().stopService(new Intent(getActivity(), GetMessageService.class));
             }
         });
         return view;

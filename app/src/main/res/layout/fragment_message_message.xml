@@ -11,10 +11,37 @@
         android:layout_height="10dp"
         />
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/message_message_rec"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_touch_grey"
+        app:layout_constraintTop_toBottomOf="@id/message_message_head_view"
+        >
+    </android.support.v7.widget.RecyclerView>
+
     <TextView
+        android:id="@+id/message_message_none"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="message"
-        app:layout_constraintTop_toBottomOf="@id/message_message_head_view"/>
+        android:layout_marginTop="20dp"
+        android:visibility="gone"
+        android:text="暂无消息~"
+        android:background="@drawable/bg_touch_grey"
+        app:layout_constraintTop_toBottomOf="@id/message_message_head_view"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:id="@+id/message_message_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:visibility="gone"
+        android:text="系统错误，请退出重试"
+        android:background="@drawable/bg_touch_grey"
+        app:layout_constraintTop_toBottomOf="@id/message_message_head_view"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

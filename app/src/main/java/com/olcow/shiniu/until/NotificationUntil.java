@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
@@ -16,9 +17,11 @@ public class NotificationUntil extends ContextWrapper {
     private NotificationManager notificationManager;
     private static final String CHANNEL_ID = "channel_1";
     private static final String CHANNEL_NAME = "channel_name_1";
+    private Context context;
 
     public NotificationUntil(Context context){
         super(context);
+        this.context = context;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -39,6 +42,7 @@ public class NotificationUntil extends ContextWrapper {
                 .setContentText(content)
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(R.drawable.ic_olcowlog_50dp)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.olcowlog_ye_touxiang))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
     }
@@ -50,6 +54,7 @@ public class NotificationUntil extends ContextWrapper {
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setSmallIcon(R.drawable.ic_olcowlog_50dp)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.olcowlog_ye_touxiang))
                 .setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
     }

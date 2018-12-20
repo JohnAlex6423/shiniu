@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    android:id="@+id/recy_nowmessage_con"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/bg_touch_grey">
 
     <com.olcow.shiniu.myview.CircleImageView
         android:id="@+id/recy_nowmessage_avatar"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="10dp"
@@ -21,27 +24,70 @@
         android:id="@+id/recy_nowmessage_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="完全自杀手册"
+        android:text="完全安德森asdfasdfasdf撒旦发多少发十大法大师傅"
+        android:textColor="@color/black"
+        android:ellipsize="end"
+        android:includeFontPadding="false"
+        android:maxLines="1"
         android:textSize="15sp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         app:layout_constraintLeft_toRightOf="@+id/recy_nowmessage_avatar"
         app:layout_constraintTop_toTopOf="@id/recy_nowmessage_avatar"
+        app:layout_constraintRight_toLeftOf="@+id/recy_nowmessage_time"
+        app:layout_constraintBottom_toTopOf="@+id/recy_nowmessage_content"
         />
 
     <TextView
+        android:id="@+id/recy_nowmessage_time"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="星期一"
+        android:maxLines="1"
+        android:layout_marginRight="10dp"
+        app:layout_constraintLeft_toRightOf="@id/recy_nowmessage_name"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recy_nowmessage_avatar"
+        app:layout_constraintBottom_toTopOf="@+id/recy_nowmessage_content" />
 
     <TextView
-        android:id="@+id/recy_nowmessage_nowmessage"
+        android:id="@+id/recy_nowmessage_content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="10dp"
         android:textSize="12sp"
-        app:layout_constraintTop_toBottomOf="@id/recy_friends_name"
-        app:layout_constraintLeft_toRightOf="@id/recy_friends_avatar"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="我是内容sdafadsfadsf"
+        app:layout_constraintTop_toBottomOf="@id/recy_nowmessage_name"
+        app:layout_constraintLeft_toRightOf="@id/recy_nowmessage_avatar"
+        app:layout_constraintBottom_toBottomOf="@id/recy_nowmessage_avatar"
+        app:layout_constraintRight_toLeftOf="@+id/recy_nowmessage_redbadge"/>
+
+    <TextView
+        android:id="@+id/recy_nowmessage_redbadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
+        android:textSize="12sp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/bg_red_badge"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/recy_nowmessage_content"
+        app:layout_constraintTop_toBottomOf="@+id/recy_nowmessage_name"
+        app:layout_constraintBottom_toBottomOf="@id/recy_nowmessage_avatar"/>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginLeft="10dp"
+        android:background="#1e000000"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/recy_friends_more"
-        android:layout_marginStart="20dp" />
+        app:layout_constraintLeft_toRightOf="@+id/recy_nowmessage_avatar"
+        app:layout_constraintRight_toRightOf="parent"
+        />
 
 </android.support.constraint.ConstraintLayout>

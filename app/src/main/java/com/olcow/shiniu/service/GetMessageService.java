@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -57,9 +58,6 @@ public class GetMessageService extends Service {
         }
         sendUserInfo = null;
         session = null;
-        Intent intent = new Intent(this,ChatActivity.class);
-        intent.putExtra("userinfo",new UserInfo());
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,0);
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -103,19 +101,36 @@ public class GetMessageService extends Service {
                                                 String res = response.body().string();
                                                 JSONObject userinfoJson = JSON.parseObject(res);
                                                 UserInfo reUserinfo = new UserInfo(Integer.parseInt(key),userinfoJson.getString("name"),userinfoJson.getString("avatar"),userinfoJson.getString("introduction"));
-                                                sqlMessage.execSQL("delete from nowmessage where uid = "+key);
-                                                sqlMessage.execSQL("insert into nowmessage values("+
-                                                        key+ ",'"+
-                                                        reUserinfo.getName()+ "','"+
-                                                        reUserinfo.getIntroduction()+"','"+
-                                                        reUserinfo.getAvatar()+"',"+
-                                                        messagePro.getDate()+",'"+
-                                                        messagePro.getContent()+"')");
+                                                Cursor c = sqlMessage.rawQuery("select *from nowmessage where uid = "+key,null);
+                                                if (c.moveToFirst()){
+                                                    sqlMessage.execSQL("update nowmessage set " +
+                                                            "name='"+reUserinfo.getName()+
+                                                            "',introduction='"+reUserinfo.getIntroduction()+
+                                                            "',avatar='"+reUserinfo.getAvatar()+
+                                                            "',date="+messagePro.getDate()+
+                                                            ",content='"+messagePro.getContent()+
+                                                            "',count=count+1 where uid = "+key);
+                                                    notificationUntil.sendNotification(reUserinfo.getName()+"("+(c.getInt(c.getColumnIndex("count"))+1)+"条新消息)",messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
+                                                    Intent intent = new Intent();
+                                                    intent.setAction("mainmessagebadge");
+                                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                                                }else {
+                                                    sqlMessage.execSQL("insert into nowmessage values("+
+                                                            key+ ",'"+
+                                                            reUserinfo.getName()+ "','"+
+                                                            reUserinfo.getIntroduction()+"','"+
+                                                            reUserinfo.getAvatar()+"',"+
+                                                            messagePro.getDate()+",'"+
+                                                            messagePro.getContent()+"',1)");
+                                                    notificationUntil.sendNotification(reUserinfo.getName(),messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
+                                                    Intent intent = new Intent();
+                                                    intent.setAction("mainmessagebadge");
+                                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                                                }
                                                 Cursor cursor = sqlMessage.rawQuery("select *from nowmessage where uid = "+key,null);
                                                 if (cursor.moveToFirst()){
-                                                    Log.e("shiniu", "uid:"+ cursor.getInt(cursor.getColumnIndex("uid"))+"name:"+cursor.getString(cursor.getColumnIndex("name"))+"intr:"+cursor.getString(cursor.getColumnIndex("introduction"))+"date:"+cursor.getLong(cursor.getColumnIndex("date"))+"content:"+cursor.getString(cursor.getColumnIndex("content")));
+                                                    Log.e("shiniu", "uid:"+ cursor.getInt(cursor.getColumnIndex("uid"))+"name:"+cursor.getString(cursor.getColumnIndex("name"))+"intr:"+cursor.getString(cursor.getColumnIndex("introduction"))+"date:"+cursor.getLong(cursor.getColumnIndex("date"))+"content:"+cursor.getString(cursor.getColumnIndex("content"))+"count:"+cursor.getInt(cursor.getColumnIndex("count")));
                                                 }
-                                                notificationUntil.sendNotification(reUserinfo.getName(),messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
                                             }
                                         });
                                     }
@@ -140,5 +155,11 @@ public class GetMessageService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        timer.cancel();
     }
 }

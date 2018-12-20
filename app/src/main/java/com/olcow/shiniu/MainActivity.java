@@ -2,13 +2,17 @@ package com.olcow.shiniu;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +30,7 @@ import com.olcow.shiniu.fragment.MessageFragment;
 import com.olcow.shiniu.fragment.MyFragment;
 import com.olcow.shiniu.service.GetMessageService;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
+import com.olcow.shiniu.sqlite.ChatDatabaseHelper;
 
 import java.io.IOException;
 
@@ -55,6 +60,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView messageText;
     private TextView friendcText;
     private TextView myText;
+
+    private TextView redbadge;
+
+    private LocalBroadcastManager localBroadcastManager;
+    private MyBroadcastReceiver myBroadcastReceiver;
+
+    private SQLiteDatabase chatSql;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,6 +204,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             myText.setText("未登录");
             session = "";
         }
+        myBroadcastReceiver = new MyBroadcastReceiver();
+        localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("mainmessagebadge");
+        localBroadcastManager.registerReceiver(myBroadcastReceiver,intentFilter);
         fragementHome = new HomeFragment();
         fragementMessage = new MessageFragment();
         fragementFriendc = new FriendcFragment();
@@ -207,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ImageView plusImage = findViewById(R.id.plusimage);
         friendcImage = findViewById(R.id.friendcimage);
         myImage = findViewById(R.id.myimage);
+        redbadge = findViewById(R.id.message_redbadge);
 
         homeText = findViewById(R.id.hometext);
         messageText = findViewById(R.id.messagetext);
@@ -228,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         getSupportFragmentManager().beginTransaction().addToBackStack(null);
+        localBroadcastManager.unregisterReceiver(myBroadcastReceiver);
     }
 
     @Override
@@ -369,6 +388,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case "my":
                 myImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_olcowlog_my));
                 myText.setTextColor(Color.parseColor("#8A8A8A"));
+        }
+    }
+
+    class MyBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e("shiniu", "onReceive: ");
+            Toast.makeText(context, "this", Toast.LENGTH_SHORT).show();
+//            if (chatSql == null){
+//                chatSql = new ChatDatabaseHelper(context,"chatmessage",null,1).getReadableDatabase();
+//            }
+//            Cursor cursor = chatSql.rawQuery("select count from nowmessage",null);
+//            if (cursor.moveToFirst()){
+//                Log.e("shiniu", "wozhixing");
+//                int count = cursor.getInt(cursor.getColumnIndex("count"));
+//                while (cursor.moveToFirst()){
+//                    count+=cursor.getInt(cursor.getColumnIndex("count"));
+//                }
+//                if (count>0){
+//                    Log.e("shiniu", "wozhix");
+//                    redbadge.setVisibility(View.VISIBLE);
+//                    redbadge.setText(String.valueOf(count));
+//                } else {
+//                    redbadge.setVisibility(View.GONE);
+//                }
+//            }
         }
     }
 }
