@@ -1,40 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.SettingActivity">
 
-    <TextView
-        android:id="@+id/base_settings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="基本设置"
-        android:layout_margin="10dp"
-        android:textColor="@color/colorAccent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:textSize="12sp"
-        />
-
-    <View
-        android:id="@+id/settings_line1"
+    <android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="0.7dp"
-        android:background="#1e000000"
-        android:layout_margin="10dp"
-        app:layout_constraintTop_toBottomOf="@+id/base_settings"/>
-    <TextView
-        android:id="@+id/setting_logout_text"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="退出登陆"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/settings_line1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:textColor="@color/red"
-        app:layout_constraintRight_toRightOf="parent"
-        android:textSize="20sp"/>
+        android:layout_height="match_parent">
 
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/settings_chat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="聊天设置"
+            android:layout_margin="10dp"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:textSize="13sp"
+            />
+
+        <LinearLayout
+            android:id="@+id/settings_chat_delete_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="20dp"
+            app:layout_constraintTop_toBottomOf="@+id/settings_chat"
+            android:background="@drawable/bg_touch_grey">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AA000000"
+                android:textSize="15sp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:text="删除聊天记录" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AA000000"
+                android:textSize="12sp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:text="这将会删除所有的聊天记录,请谨慎" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/settings_base"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="基本设置"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintTop_toBottomOf="@id/settings_chat_delete_message"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:textSize="13sp"
+            />
+
+        <TextView
+            android:id="@+id/setting_logout_text"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="退出登陆"
+            android:gravity="center"
+            android:layout_marginTop="15dp"
+            app:layout_constraintTop_toBottomOf="@+id/settings_base"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:textColor="@color/red"
+            app:layout_constraintRight_toRightOf="parent"
+            android:textSize="15sp"
+            android:background="@drawable/bg_touch_grey"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+</ScrollView>

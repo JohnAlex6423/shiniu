@@ -25,12 +25,18 @@ public class NowMessageListAdapter extends RecyclerView.Adapter<NowMessageListAd
 
     private List<NowMessage> nowMessages;
     private UserInfo sendUserInfo;
-    private UserInfo reUserInfo;
+    private List<UserInfo> reUserInfoList;
+    private OnItemAreYouSureClickListener onItemAreYouSureClickListener = null;
 
-    public NowMessageListAdapter(List<NowMessage> nowMessages, UserInfo sendUserInfo, UserInfo reUserInfo) {
+    public NowMessageListAdapter(List<NowMessage> nowMessages, UserInfo sendUserInfo, List<UserInfo> reUserInfoList) {
         this.nowMessages = nowMessages;
         this.sendUserInfo = sendUserInfo;
-        this.reUserInfo = reUserInfo;
+        this.reUserInfoList = reUserInfoList;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     @NonNull
@@ -41,12 +47,13 @@ public class NowMessageListAdapter extends RecyclerView.Adapter<NowMessageListAd
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
         Glide.with(viewHolder.itemView.getContext())
                 .load(nowMessages.get(i).getAvatar())
                 .into(viewHolder.avatarImg);
         viewHolder.nameText.setText(nowMessages.get(i).getName());
         viewHolder.timeText.setText(nowMessages.get(i).getTime());
+        viewHolder.contentText.setText(nowMessages.get(i).getContent());
         viewHolder.redBadgeText.setText(String.valueOf(nowMessages.get(i).getRedbadge()));
         if (nowMessages.get(i).getRedbadge()>0){
             viewHolder.redBadgeText.setText(String.valueOf(nowMessages.get(i).getRedbadge()));
@@ -55,7 +62,11 @@ public class NowMessageListAdapter extends RecyclerView.Adapter<NowMessageListAd
         viewHolder.nowMessageCon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewHolder.itemView.getContext().startActivity(new Intent(viewHolder.itemView.getContext(),ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserInfo));
+                viewHolder.itemView.getContext().startActivity(
+                        new Intent(viewHolder.itemView.getContext(),ChatActivity.class)
+                        .putExtra("senduserinfo",sendUserInfo)
+                        .putExtra("recipientuserinfo",reUserInfoList.get(i))
+                );
             }
         });
         viewHolder.nowMessageCon.setOnLongClickListener(new View.OnLongClickListener() {
@@ -66,20 +77,21 @@ public class NowMessageListAdapter extends RecyclerView.Adapter<NowMessageListAd
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (which==0){
-                                    Toast.makeText(viewHolder.itemView.getContext(), "删除", Toast.LENGTH_SHORT).show();
+                                    onItemAreYouSureClickListener.onDelNowMessage(reUserInfoList.get(i).getUid());
                                 }else if (which==1){
                                     AlertDialog areyousure = new AlertDialog.Builder(viewHolder.itemView.getContext())
                                             .setTitle("你确定删除与此人的聊天记录？")
-                                            .setPositiveButton("取消", new DialogInterface.OnClickListener() {
+                                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
-                                                    Toast.makeText(viewHolder.itemView.getContext(), "已取消", Toast.LENGTH_SHORT).show();
                                                 }
                                             })
                                             .setPositiveButton("删除", new DialogInterface.OnClickListener() {
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
-                                                    Toast.makeText(viewHolder.itemView.getContext(), "你点击了删除!", Toast.LENGTH_SHORT).show();
+                                                    if (onItemAreYouSureClickListener!=null){
+                                                        onItemAreYouSureClickListener.onSureClick(reUserInfoList.get(i).getUid());
+                                                    }
                                                 }
                                             }).create();
                                     areyousure.show();
@@ -113,5 +125,14 @@ public class NowMessageListAdapter extends RecyclerView.Adapter<NowMessageListAd
             nowMessageCon = itemView.findViewById(R.id.recy_nowmessage_con);
             redBadgeText = itemView.findViewById(R.id.recy_nowmessage_redbadge);
         }
+    }
+
+    public void addAreYouSureClickListener(OnItemAreYouSureClickListener onItemAreYouSureClickListener){
+        this.onItemAreYouSureClickListener = onItemAreYouSureClickListener;
+    }
+
+    public interface OnItemAreYouSureClickListener{
+        void onSureClick(int userId);
+        void onDelNowMessage(int userId);
     }
 }

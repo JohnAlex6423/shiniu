@@ -58,7 +58,9 @@ public class GetMessageService extends Service {
         }
         sendUserInfo = null;
         session = null;
-        timer = new Timer();
+        if (timer == null){
+            timer = new Timer();
+        }
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -79,15 +81,27 @@ public class GetMessageService extends Service {
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {
                             String res = response.body().string();
-                            final JSONObject jsonObject = JSON.parseObject(res);
-                            Set<String> keys = jsonObject.keySet();
+                            final JSONObject jsonObject;
+                            Set<String> keys;
+                            try {
+                                jsonObject = JSON.parseObject(res);
+                                keys = jsonObject.keySet();
+                            }catch (Exception e){
+                                Log.e("shiniu", "getmessageerror:"+e.getMessage());
+                                timer.cancel();
+                                return;
+                            }
                             if (keys.isEmpty()){
                                 Log.e("shiniu", "空");
                             }else {
                                 for (final String key:keys){
                                     Log.e("shiniu", "onResponse: "+key);
+                                    if (key.equals("error")){
+                                        timer.cancel();
+                                        return;
+                                    }
                                     for (final MessagePro messagePro : JSON.parseArray(jsonObject.getString(key),MessagePro.class)){
-                                        sqlMessage.execSQL("insert into message(uid,date,recipientorsend,content) values("+key+","+messagePro.getDate()+",0,'"+messagePro.getContent()+"')");
+                                        sqlMessage.execSQL("insert into message(myuid,uid,date,recipientorsend,content) values("+sendUserInfo.getUid()+","+key+","+messagePro.getDate()+",0,'"+messagePro.getContent()+"')");
                                         okHttpClient.newCall(new Request.Builder()
                                                 .url("http://39.96.40.12:1008/getuserinfobyuid?uid="+key)
                                                 .build()).enqueue(new Callback() {
@@ -99,9 +113,17 @@ public class GetMessageService extends Service {
                                             @Override
                                             public void onResponse(Call call, Response response) throws IOException {
                                                 String res = response.body().string();
-                                                JSONObject userinfoJson = JSON.parseObject(res);
-                                                UserInfo reUserinfo = new UserInfo(Integer.parseInt(key),userinfoJson.getString("name"),userinfoJson.getString("avatar"),userinfoJson.getString("introduction"));
-                                                Cursor c = sqlMessage.rawQuery("select *from nowmessage where uid = "+key,null);
+                                                JSONObject userinfoJson;
+                                                UserInfo reUserinfo;
+                                                try {
+                                                    userinfoJson = JSON.parseObject(res);
+                                                    reUserinfo = new UserInfo(Integer.parseInt(key),userinfoJson.getString("name"),userinfoJson.getString("avatar"),userinfoJson.getString("introduction"));
+                                                }catch (Exception e){
+                                                    Log.e("shiniu", "getmessageerror:"+e.getMessage());
+                                                    timer.cancel();
+                                                    return;
+                                                }
+                                                Cursor c = sqlMessage.rawQuery("select *from nowmessage where uid = "+key+" and myuid = "+sendUserInfo.getUid(),null);
                                                 if (c.moveToFirst()){
                                                     sqlMessage.execSQL("update nowmessage set " +
                                                             "name='"+reUserinfo.getName()+
@@ -109,13 +131,12 @@ public class GetMessageService extends Service {
                                                             "',avatar='"+reUserinfo.getAvatar()+
                                                             "',date="+messagePro.getDate()+
                                                             ",content='"+messagePro.getContent()+
-                                                            "',count=count+1 where uid = "+key);
+                                                            "',count=count+1 where uid = "+key+" and myuid = "+sendUserInfo.getUid());
                                                     notificationUntil.sendNotification(reUserinfo.getName()+"("+(c.getInt(c.getColumnIndex("count"))+1)+"条新消息)",messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
-                                                    Intent intent = new Intent();
-                                                    intent.setAction("mainmessagebadge");
-                                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                                                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent().setAction("mainmessagebadge"));
                                                 }else {
                                                     sqlMessage.execSQL("insert into nowmessage values("+
+                                                            sendUserInfo.getUid()+","+
                                                             key+ ",'"+
                                                             reUserinfo.getName()+ "','"+
                                                             reUserinfo.getIntroduction()+"','"+
@@ -123,9 +144,7 @@ public class GetMessageService extends Service {
                                                             messagePro.getDate()+",'"+
                                                             messagePro.getContent()+"',1)");
                                                     notificationUntil.sendNotification(reUserinfo.getName(),messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
-                                                    Intent intent = new Intent();
-                                                    intent.setAction("mainmessagebadge");
-                                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                                                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent().setAction("mainmessagebadge"));
                                                 }
                                                 Cursor cursor = sqlMessage.rawQuery("select *from nowmessage where uid = "+key,null);
                                                 if (cursor.moveToFirst()){

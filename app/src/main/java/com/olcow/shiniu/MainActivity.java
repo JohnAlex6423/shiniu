@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
@@ -45,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private String change;
     private String session;
+    private int uid;
 
     private Fragment fragementHome;
     private Fragment fragementMessage;
@@ -67,17 +67,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MyBroadcastReceiver myBroadcastReceiver;
 
     private SQLiteDatabase chatSql;
+    private SQLiteDatabase sqLiteDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myText = findViewById(R.id.mytext);
-        SQLiteOpenHelper accountHelper=new AccountDatabaseHelper(MainActivity.this,"olcowsso",null,1);
-        final SQLiteDatabase sqLiteDatabase = accountHelper.getReadableDatabase();
-        Cursor c = sqLiteDatabase.rawQuery("select session from account",null);
+        uid = 0;
+        if (sqLiteDatabase==null){
+            sqLiteDatabase=new AccountDatabaseHelper(MainActivity.this,"olcowsso",null,1).getReadableDatabase();
+        }
+        Cursor c = sqLiteDatabase.rawQuery("select session,uid from account",null);
         if (c.moveToFirst()){
             session = c.getString(c.getColumnIndex("session"));
+            uid = c.getInt(c.getColumnIndex("uid"));
             final OkHttpClient okHttpClient = new OkHttpClient();
             Request request = new Request.Builder()
                     .url("http://39.96.40.12:7703/islogin")
@@ -104,15 +108,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 @Override
                                 public void run() {
                                     Toast.makeText(MainActivity.this, "您的登陆已过期!", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            sqLiteDatabase.execSQL("delete from account");
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
                                     myText.setText("未登录");
                                 }
                             });
+                            sqLiteDatabase.execSQL("delete from account");
+                            sqLiteDatabase.execSQL("delete from userinfo");
                             break;
                         case "redis error":
                             runOnUiThread(new Runnable() {
@@ -204,11 +204,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             myText.setText("未登录");
             session = "";
         }
-        myBroadcastReceiver = new MyBroadcastReceiver();
-        localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("mainmessagebadge");
-        localBroadcastManager.registerReceiver(myBroadcastReceiver,intentFilter);
         fragementHome = new HomeFragment();
         fragementMessage = new MessageFragment();
         fragementFriendc = new FriendcFragment();
@@ -246,7 +241,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         getSupportFragmentManager().beginTransaction().addToBackStack(null);
-        localBroadcastManager.unregisterReceiver(myBroadcastReceiver);
     }
 
     @Override
@@ -391,30 +385,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        localBroadcastManager.unregisterReceiver(myBroadcastReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateMessageBadge();
+        if (myBroadcastReceiver==null){
+            myBroadcastReceiver = new MyBroadcastReceiver();
+        }
+        if (localBroadcastManager == null){
+            localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        }
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("mainmessagebadge");
+        localBroadcastManager.registerReceiver(myBroadcastReceiver,intentFilter);
+    }
+
     class MyBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e("shiniu", "onReceive: ");
-            Toast.makeText(context, "this", Toast.LENGTH_SHORT).show();
-//            if (chatSql == null){
-//                chatSql = new ChatDatabaseHelper(context,"chatmessage",null,1).getReadableDatabase();
-//            }
-//            Cursor cursor = chatSql.rawQuery("select count from nowmessage",null);
-//            if (cursor.moveToFirst()){
-//                Log.e("shiniu", "wozhixing");
-//                int count = cursor.getInt(cursor.getColumnIndex("count"));
-//                while (cursor.moveToFirst()){
-//                    count+=cursor.getInt(cursor.getColumnIndex("count"));
-//                }
-//                if (count>0){
-//                    Log.e("shiniu", "wozhix");
-//                    redbadge.setVisibility(View.VISIBLE);
-//                    redbadge.setText(String.valueOf(count));
-//                } else {
-//                    redbadge.setVisibility(View.GONE);
-//                }
-//            }
+            updateMessageBadge();
+        }
+    }
+
+    private void updateMessageBadge(){
+        if (chatSql == null){
+            chatSql = new ChatDatabaseHelper(MainActivity.this,"chatmessage",null,1).getReadableDatabase();
+        }
+        if (uid == 0){
+            if (sqLiteDatabase==null){
+                sqLiteDatabase=new AccountDatabaseHelper(MainActivity.this,"olcowsso",null,1).getReadableDatabase();
+            }
+            Cursor c = sqLiteDatabase.rawQuery("select uid from account",null);
+            if (c.moveToFirst()){
+                uid = c.getInt(c.getColumnIndex("uid"));
+            } else {
+                return;
+            }
+        }
+        Cursor cursor = chatSql.rawQuery("select count from nowmessage where myuid = "+uid,null);
+        if (cursor.moveToFirst()){
+            int count = cursor.getInt(cursor.getColumnIndex("count"));
+            while (cursor.moveToNext()){
+                count+=cursor.getInt(cursor.getColumnIndex("count"));
+            }
+            if (count>0){
+                redbadge.setVisibility(View.VISIBLE);
+                redbadge.setText(String.valueOf(count));
+            } else {
+                redbadge.setVisibility(View.GONE);
+            }
+        } else {
+            redbadge.setVisibility(View.GONE);
         }
     }
 }

@@ -26,6 +26,7 @@ import com.olcow.shiniu.R;
 import com.olcow.shiniu.adapter.FriendListAdapt;
 import com.olcow.shiniu.entity.UserInfo;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
+import com.olcow.shiniu.sqlite.ChatDatabaseHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,13 +47,12 @@ public class MessageFriendsFragment extends Fragment {
     private SwipeRefreshLayout friendPullRef;
     private RecyclerView friendsList;
     private TextView friendNobody;
-    private RecyclerView.Adapter adapter;
+    private FriendListAdapt adapter;
     private List<UserInfo> userInfoList;
     private OkHttpClient okHttpClient;
     private SQLiteDatabase sqLiteDatabase;
+    private SQLiteDatabase chatDatabase;
     private String session;
-    private MyBroadcastReceiver myBroadcastReceiver;
-    private LocalBroadcastManager localBroadcastManager;
     private UserInfo sendUserinfo;
     private TextView errorText;
 
@@ -62,7 +62,7 @@ public class MessageFriendsFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_message_friends,container,false);
@@ -94,6 +94,22 @@ public class MessageFriendsFragment extends Fragment {
             Toast.makeText(getActivity(), "你还未登陆", Toast.LENGTH_SHORT).show();
         }
         adapter = new FriendListAdapt(userInfoList,sendUserinfo);
+        adapter.addAreYouSureClickListener(new FriendListAdapt.OnItemAreYouSure() {
+            @Override
+            public void delMessageForUserId(int userId) {
+                if (chatDatabase == null){
+                    chatDatabase = new ChatDatabaseHelper(getActivity(),"chatmessage",null,1).getWritableDatabase();
+                }
+                chatDatabase.execSQL("delete from message where uid = "+userId);
+                chatDatabase.execSQL("delete from nowmessage where uid = "+userId);
+                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(new Intent().setAction("mainmessagebadge"));
+            }
+
+            @Override
+            public void onClanUnsubscribe(int userId) {
+                delfriend(userId);
+            }
+        });
         friendsList.setAdapter(adapter);
         friendPullRef.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -102,12 +118,13 @@ public class MessageFriendsFragment extends Fragment {
             }
         });
         getFriend();
-        myBroadcastReceiver = new MyBroadcastReceiver();
-        localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("delfriend");
-        localBroadcastManager.registerReceiver(myBroadcastReceiver,intentFilter);
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getFriend();
     }
 
     private void getFriend(){
@@ -264,19 +281,5 @@ public class MessageFriendsFragment extends Fragment {
         } else {
             Toast.makeText(getActivity(), "系统错误,请稍后重试", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    class MyBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            delfriend(intent.getIntExtra("userinfoid",0));
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        localBroadcastManager.unregisterReceiver(myBroadcastReceiver);
     }
 }

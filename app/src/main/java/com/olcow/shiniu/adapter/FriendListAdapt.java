@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHo
     private List<UserInfo> userInfoList;
     private RequestOptions requestOptions;
     private UserInfo sendUserInfo;
+    private OnItemAreYouSure onItemAreYouSure = null;
 
 
     public FriendListAdapt(List<UserInfo> userInfoList,UserInfo sendUserInfo){
@@ -57,16 +59,49 @@ public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHo
             @Override
             public void onClick(final View v) {
                 AlertDialog alertDialog = new AlertDialog.Builder(viewHolder.itemView.getContext())
-                        .setItems(new String[]{"取关"}, new DialogInterface.OnClickListener() {
+                        .setItems(new String[]{"删除聊天记录","取关"}, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                if (which==0){
-                                    Intent intent = new Intent();
-                                    intent.setAction("delfriend");
-                                    intent.putExtra("userinfoid",userInfoList.get(i).getUid());
-                                    LocalBroadcastManager.getInstance(
-                                            viewHolder.itemView.getContext())
-                                            .sendBroadcast(intent);
+                                switch (which){
+                                    case 0:
+                                        AlertDialog areYouSure = new AlertDialog.Builder(viewHolder.itemView.getContext())
+                                                .setTitle("你确定要删除与此人的聊天记录吗？")
+                                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                    }
+                                                })
+                                                .setPositiveButton("删除", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        if (onItemAreYouSure!=null){
+                                                            onItemAreYouSure.delMessageForUserId(userInfoList.get(i).getUid());
+                                                        }else {
+                                                            Toast.makeText(viewHolder.itemView.getContext(), "系统错误，请退出重试", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                }).create();
+                                        areYouSure.show();
+                                }
+                                if (which==1){
+                                    AlertDialog areYouSure = new AlertDialog.Builder(viewHolder.itemView.getContext())
+                                            .setTitle("你确定要取关吗？")
+                                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                }
+                                            })
+                                            .setPositiveButton("取关", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    if (onItemAreYouSure!=null){
+                                                        onItemAreYouSure.onClanUnsubscribe(userInfoList.get(i).getUid());
+                                                    }else {
+                                                        Toast.makeText(viewHolder.itemView.getContext(), "系统错误，请退出重试", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            }).create();
+                                    areYouSure.show();
                                 }
                             }
                         }).create();
@@ -107,5 +142,14 @@ public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHo
             moreImg = itemView.findViewById(R.id.recy_friends_more);
             friendCon = itemView.findViewById(R.id.recy_friends);
         }
+    }
+
+    public void addAreYouSureClickListener(OnItemAreYouSure onItemAreYouSure){
+        this.onItemAreYouSure = onItemAreYouSure;
+    }
+
+    public interface OnItemAreYouSure{
+        void delMessageForUserId(int userId);
+        void onClanUnsubscribe(int userId);
     }
 }
