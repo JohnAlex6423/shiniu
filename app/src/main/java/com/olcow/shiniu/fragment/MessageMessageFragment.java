@@ -139,7 +139,7 @@ public class MessageMessageFragment extends Fragment {
                         TimeType.getLastSendMessageTimeText(cursor.getLong(cursor.getColumnIndex("date"))),
                         recipientUserInfoWhile.getAvatar(),cursor.getInt(cursor.getColumnIndex("count"))));
             }
-            nowMessageAdapter = new NowMessageListAdapter(nowMessages,sendUserInfo,recipientUserInfoList);
+            nowMessageAdapter = new NowMessageListAdapter(nowMessages,recipientUserInfoList);
             nowMessageAdapter.addAreYouSureClickListener(new NowMessageListAdapter.OnItemAreYouSureClickListener() {
                 @Override
                 public void onSureClick(int userId) {

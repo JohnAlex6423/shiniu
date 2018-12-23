@@ -24,13 +24,11 @@ import java.util.List;
 public class NowMessageListAdapter extends RecyclerView.Adapter<NowMessageListAdapter.ViewHolder> {
 
     private List<NowMessage> nowMessages;
-    private UserInfo sendUserInfo;
     private List<UserInfo> reUserInfoList;
     private OnItemAreYouSureClickListener onItemAreYouSureClickListener = null;
 
-    public NowMessageListAdapter(List<NowMessage> nowMessages, UserInfo sendUserInfo, List<UserInfo> reUserInfoList) {
+    public NowMessageListAdapter(List<NowMessage> nowMessages, List<UserInfo> reUserInfoList) {
         this.nowMessages = nowMessages;
-        this.sendUserInfo = sendUserInfo;
         this.reUserInfoList = reUserInfoList;
     }
 
@@ -64,7 +62,6 @@ public class NowMessageListAdapter extends RecyclerView.Adapter<NowMessageListAd
             public void onClick(View v) {
                 viewHolder.itemView.getContext().startActivity(
                         new Intent(viewHolder.itemView.getContext(),ChatActivity.class)
-                        .putExtra("senduserinfo",sendUserInfo)
                         .putExtra("recipientuserinfo",reUserInfoList.get(i))
                 );
             }

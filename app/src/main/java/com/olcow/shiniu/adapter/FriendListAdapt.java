@@ -4,13 +4,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,13 +25,16 @@ public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHo
 
     private List<UserInfo> userInfoList;
     private RequestOptions requestOptions;
-    private UserInfo sendUserInfo;
     private OnItemAreYouSure onItemAreYouSure = null;
 
 
-    public FriendListAdapt(List<UserInfo> userInfoList,UserInfo sendUserInfo){
+    public FriendListAdapt(List<UserInfo> userInfoList){
         this.userInfoList = userInfoList;
-        this.sendUserInfo = sendUserInfo;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     @NonNull
@@ -111,14 +112,7 @@ public class FriendListAdapt extends RecyclerView.Adapter<FriendListAdapt.ViewHo
         viewHolder.friendCon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sendUserInfo!=null){
-                    Intent intent = new Intent(viewHolder.itemView.getContext(),ChatActivity.class);
-                    intent.putExtra("senduserinfo",sendUserInfo);
-                    intent.putExtra("recipientuserinfo",userInfoList.get(i));
-                    viewHolder.itemView.getContext().startActivity(intent);
-                }else {
-                    Toast.makeText(viewHolder.itemView.getContext(), "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
-                }
+                    viewHolder.itemView.getContext().startActivity(new Intent(viewHolder.itemView.getContext(),ChatActivity.class).putExtra("recipientuserinfo",userInfoList.get(i)));
             }
         });
     }

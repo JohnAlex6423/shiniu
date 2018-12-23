@@ -36,24 +36,66 @@ public class TimeType {
                 default:
                     dayOfWeekText = "";
             }
-            return dayOfWeekText+" "+calendar.get(Calendar.HOUR_OF_DAY)+":"+calendar.get(Calendar.MINUTE);
-        } else if (now - time <86400000){
-            int nowHour = calendar.get(Calendar.HOUR_OF_DAY);
-            calendar.setTime(new Date(time));
-            int sendHour = calendar.get(Calendar.HOUR_OF_DAY);
-            if (nowHour>sendHour){
-                return "今天 " + calendar.get(Calendar.HOUR_OF_DAY)+":"+calendar.get(Calendar.MINUTE);
+            int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+            String hourDayText;
+            if (hourOfDay<10){
+                hourDayText = "0"+hourOfDay;
             }else {
-                return "昨天 " + calendar.get(Calendar.HOUR_OF_DAY)+":"+calendar.get(Calendar.MINUTE);
+                hourDayText = String.valueOf(hourOfDay);
+            }
+            int min = calendar.get(Calendar.MINUTE);
+            String minText;
+            if (min<10){
+                minText = "0"+min;
+            }else {
+                minText = String.valueOf(min);
+            }
+            return dayOfWeekText+" "+hourDayText+":"+minText;
+        } else if (now - time <86400000){
+            int nowDay = calendar.get(Calendar.DAY_OF_MONTH);
+            calendar.setTime(new Date(time));
+            int sendDay = calendar.get(Calendar.DAY_OF_MONTH);
+            int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+            String hourDayText;
+            if (hourOfDay<10){
+                hourDayText = "0"+hourOfDay;
+            }else {
+                hourDayText = String.valueOf(hourOfDay);
+            }
+            int min = calendar.get(Calendar.MINUTE);
+            String minText;
+            if (min<10){
+                minText = "0"+min;
+            }else {
+                minText = String.valueOf(min);
+            }
+            if (nowDay==sendDay){
+                return "今天 " + hourDayText+":"+minText;
+            }else {
+                return "昨天 " + hourDayText+":"+minText;
             }
         } else {
             int nowYear = calendar.get(Calendar.YEAR);
             calendar.setTime(new Date(time));
             int sendYear = calendar.get(Calendar.YEAR);
-            if (nowYear>sendYear){
-                return sendYear+"-"+calendar.get(Calendar.MONTH)+1+"-"+calendar.get(Calendar.DAY_OF_MONTH)+calendar.get(Calendar.HOUR_OF_DAY)+":"+calendar.get(Calendar.MINUTE);
+            int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+            String hourDayText;
+            if (hourOfDay<10){
+                hourDayText = "0"+hourOfDay;
+            }else {
+                hourDayText = String.valueOf(hourOfDay);
             }
-            return calendar.get(Calendar.MONTH)+1+"-"+calendar.get(Calendar.DAY_OF_MONTH)+calendar.get(Calendar.HOUR_OF_DAY)+":"+calendar.get(Calendar.MINUTE);
+            int min = calendar.get(Calendar.MINUTE);
+            String minText;
+            if (min<10){
+                minText = "0"+min;
+            }else {
+                minText = String.valueOf(min);
+            }
+            if (nowYear>sendYear){
+                return sendYear+"-"+calendar.get(Calendar.MONTH)+1+"-"+calendar.get(Calendar.DAY_OF_MONTH)+hourDayText+":"+minText;
+            }
+            return calendar.get(Calendar.MONTH)+1+"-"+calendar.get(Calendar.DAY_OF_MONTH)+hourDayText+":"+minText;
         }
     }
 
@@ -61,13 +103,27 @@ public class TimeType {
         Calendar calendar = Calendar.getInstance();
         long now = calendar.getTime().getTime();
         if (now - time < 86400000) {
-            int nowHour = calendar.get(Calendar.HOUR_OF_DAY);
+            int nowDay = calendar.get(Calendar.DAY_OF_MONTH);
             calendar.setTime(new Date(time));
-            int sendHour = calendar.get(Calendar.HOUR_OF_DAY);
-            if (nowHour > sendHour) {
-                return "今天" + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
-            } else {
-                return "昨天" + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
+            int sendDay = calendar.get(Calendar.DAY_OF_MONTH);
+            int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+            String hourDayText;
+            if (hourOfDay<10){
+                hourDayText = "0"+hourOfDay;
+            }else {
+                hourDayText = String.valueOf(hourOfDay);
+            }
+            int min = calendar.get(Calendar.MINUTE);
+            String minText;
+            if (min<10){
+                minText = "0"+min;
+            }else {
+                minText = String.valueOf(min);
+            }
+            if (nowDay==sendDay){
+                return "今天 " + hourDayText+":"+minText;
+            }else {
+                return "昨天 " + hourDayText+":"+minText;
             }
         } else if (now - time > 86400000 && now - time < 604800000) {
             calendar.setTime(new Date(time));

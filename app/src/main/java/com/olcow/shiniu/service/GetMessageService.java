@@ -132,7 +132,7 @@ public class GetMessageService extends Service {
                                                             "',date="+messagePro.getDate()+
                                                             ",content='"+messagePro.getContent()+
                                                             "',count=count+1 where uid = "+key+" and myuid = "+sendUserInfo.getUid());
-                                                    notificationUntil.sendNotification(reUserinfo.getName()+"("+(c.getInt(c.getColumnIndex("count"))+1)+"条新消息)",messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
+                                                    notificationUntil.sendNotification(reUserinfo.getName()+"("+(c.getInt(c.getColumnIndex("count"))+1)+"条新消息)",messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
                                                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent().setAction("mainmessagebadge"));
                                                 }else {
                                                     sqlMessage.execSQL("insert into nowmessage values("+
@@ -143,7 +143,7 @@ public class GetMessageService extends Service {
                                                             reUserinfo.getAvatar()+"',"+
                                                             messagePro.getDate()+",'"+
                                                             messagePro.getContent()+"',1)");
-                                                    notificationUntil.sendNotification(reUserinfo.getName(),messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
+                                                    notificationUntil.sendNotification(reUserinfo.getName(),messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
                                                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent().setAction("mainmessagebadge"));
                                                 }
                                                 Cursor cursor = sqlMessage.rawQuery("select *from nowmessage where uid = "+key,null);

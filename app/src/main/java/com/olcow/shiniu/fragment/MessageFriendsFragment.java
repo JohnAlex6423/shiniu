@@ -93,7 +93,7 @@ public class MessageFriendsFragment extends Fragment {
             session = null;
             Toast.makeText(getActivity(), "你还未登陆", Toast.LENGTH_SHORT).show();
         }
-        adapter = new FriendListAdapt(userInfoList,sendUserinfo);
+        adapter = new FriendListAdapt(userInfoList);
         adapter.addAreYouSureClickListener(new FriendListAdapt.OnItemAreYouSure() {
             @Override
             public void delMessageForUserId(int userId) {
@@ -102,7 +102,6 @@ public class MessageFriendsFragment extends Fragment {
                 }
                 chatDatabase.execSQL("delete from message where uid = "+userId);
                 chatDatabase.execSQL("delete from nowmessage where uid = "+userId);
-                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(new Intent().setAction("mainmessagebadge"));
             }
 
             @Override
@@ -117,7 +116,6 @@ public class MessageFriendsFragment extends Fragment {
                 getFriend();
             }
         });
-        getFriend();
         return view;
     }
 
