@@ -447,7 +447,7 @@ public class ChatActivity extends AppCompatActivity {
                                                 recyclerView.scrollToPosition(messages.size()-1);
                                             }
                                         });
-                                        Cursor c = chatSql.rawQuery("select *from nowmessage where uid = "+key+" and myuid = "+sendUserInfo.getUid(),null);
+                                        Cursor c = chatSql.rawQuery("select *from nowmessage where uid = "+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid(),null);
                                         if (c.moveToFirst()){
                                             chatSql.execSQL("update nowmessage set " +
                                                     "name='"+recipientUserInfo.getName()+
@@ -455,11 +455,11 @@ public class ChatActivity extends AppCompatActivity {
                                                     "',avatar='"+recipientUserInfo.getAvatar()+
                                                     "',date="+messagePro.getDate()+
                                                     ",content='"+messagePro.getContent()+
-                                                    "',count=count+1 where uid = "+key+" and myuid = "+sendUserInfo.getUid());
+                                                    "' where uid = "+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid());
                                         }else {
                                             chatSql.execSQL("insert into nowmessage values("+
                                                     sendUserInfo.getUid()+","+
-                                                    key+ ",'"+
+                                                    recipientUserInfo.getUid()+ ",'"+
                                                     recipientUserInfo.getName()+ "','"+
                                                     recipientUserInfo.getIntroduction()+"','"+
                                                     recipientUserInfo.getAvatar()+"',"+
@@ -500,9 +500,8 @@ public class ChatActivity extends AppCompatActivity {
                                                             "',avatar='"+reUserinfo.getAvatar()+
                                                             "',date="+messagePro.getDate()+
                                                             ",content='"+messagePro.getContent()+
-                                                            "',0 where uid = "+key+" and myuid = "+sendUserInfo.getUid());
+                                                            "',count=count+1 where uid = "+key+" and myuid = "+sendUserInfo.getUid());
                                                     notificationUntil.sendNotification(reUserinfo.getName()+"("+(c.getInt(c.getColumnIndex("count"))+1)+"条新消息)",messagePro.getContent(),PendingIntent.getActivity(ChatActivity.this,0,new Intent(ChatActivity.this,ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
-                                                    LocalBroadcastManager.getInstance(ChatActivity.this).sendBroadcast(new Intent().setAction("mainmessagebadge"));
                                                 }else {
                                                     chatSql.execSQL("insert into nowmessage values("+
                                                             sendUserInfo.getUid()+","+
@@ -511,9 +510,8 @@ public class ChatActivity extends AppCompatActivity {
                                                             reUserinfo.getIntroduction()+"','"+
                                                             reUserinfo.getAvatar()+"',"+
                                                             messagePro.getDate()+",'"+
-                                                            messagePro.getContent()+"',0)");
+                                                            messagePro.getContent()+"',1)");
                                                     notificationUntil.sendNotification(reUserinfo.getName(),messagePro.getContent(),PendingIntent.getActivity(ChatActivity.this,0,new Intent(ChatActivity.this,ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
-                                                    LocalBroadcastManager.getInstance(ChatActivity.this).sendBroadcast(new Intent().setAction("mainmessagebadge"));
                                                 }
                                                 Cursor cursor = chatSql.rawQuery("select *from nowmessage where uid = "+key,null);
                                                 if (cursor.moveToFirst()){
@@ -594,11 +592,11 @@ public class ChatActivity extends AppCompatActivity {
                                 "',avatar='"+recipientUserInfo.getAvatar()+
                                 "',date="+res+
                                 ",content='"+content+
-                                "',count=count+1 where uid = "+sendUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid());
+                                "' where uid = "+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid());
                     }else {
                         chatSql.execSQL("insert into nowmessage values("+
                                 sendUserInfo.getUid()+","+
-                                sendUserInfo.getUid()+ ",'"+
+                                recipientUserInfo.getUid()+ ",'"+
                                 recipientUserInfo.getName()+ "','"+
                                 recipientUserInfo.getIntroduction()+"','"+
                                 recipientUserInfo.getAvatar()+"',"+

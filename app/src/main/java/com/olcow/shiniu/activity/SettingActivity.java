@@ -65,7 +65,6 @@ public class SettingActivity extends AppCompatActivity {
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                             }
                         })
                         .setPositiveButton("清空", new DialogInterface.OnClickListener() {
@@ -88,7 +87,7 @@ public class SettingActivity extends AppCompatActivity {
                                 }
                                 chatSql.execSQL("delete from message");
                                 chatSql.execSQL("delete from nowmessage");
-                                Toast.makeText(SettingActivity.this, "以清除", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SettingActivity.this, "已清空", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .create();
