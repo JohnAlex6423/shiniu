@@ -5,10 +5,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -30,6 +29,7 @@ import com.olcow.shiniu.entity.UserInfo;
 import com.olcow.shiniu.service.GetMessageService;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
 import com.olcow.shiniu.sqlite.ChatDatabaseHelper;
+import com.olcow.shiniu.until.MyLinearLayoutManager;
 import com.olcow.shiniu.until.NotificationUntil;
 import com.olcow.shiniu.until.Softkeyboardlistener;
 import com.olcow.shiniu.until.TimeType;
@@ -67,8 +67,9 @@ public class ChatActivity extends AppCompatActivity {
     private Timer timer;
     private OkHttpClient okHttpClient;
     private NotificationUntil notificationUntil;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private int page = 1;
     private long coolTime = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +84,8 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.chat_rec);
         sendCon = findViewById(R.id.chat_send_con);
         errorText = findViewById(R.id.chat_error);
+        swipeRefreshLayout = findViewById(R.id.chat_rec_swipe);
+        swipeRefreshLayout.setColorSchemeColors(-745928);
         if (!getSession()){
             sendCon.setVisibility(View.GONE);
             recyclerView.setVisibility(View.GONE);
@@ -101,6 +104,12 @@ public class ChatActivity extends AppCompatActivity {
             errorText.setVisibility(View.VISIBLE);
             return;
         }
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadChatMessage();
+            }
+        });
         sendEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -196,7 +205,7 @@ public class ChatActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        recyclerView.setLayoutManager(new LinearLayoutManager(ChatActivity.this, LinearLayoutManager.VERTICAL, false));
+                        recyclerView.setLayoutManager(new MyLinearLayoutManager(ChatActivity.this, MyLinearLayoutManager.VERTICAL, false));
                         adapter = new ChatAdapter(messages, sendUserInfo, recipientUserInfo);
                         recyclerView.setAdapter(adapter);
                         recyclerView.scrollToPosition(messages.size() - 1);
@@ -221,7 +230,7 @@ public class ChatActivity extends AppCompatActivity {
                     recipientUserInfo = new UserInfo(recipientUserInfo.getUid(), userinfoJson.getString("name"), userinfoJson.getString("avatar"), userinfoJson.getString("introduction"));
                 } catch (Exception e) {
                     recipientUserInfo = cacheUserInfo;
-                    Log.e("shiniu", "get recipientUserinfo ERROR:"+e.getMessage());
+                    Log.e("shiniu", "get recipientUserinfo ERROR:"+res);
                 }
                 runOnUiThread(new Runnable() {
                     @Override
@@ -278,7 +287,7 @@ public class ChatActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        recyclerView.setLayoutManager(new LinearLayoutManager(ChatActivity.this, LinearLayoutManager.VERTICAL, false));
+                        recyclerView.setLayoutManager(new MyLinearLayoutManager(ChatActivity.this, MyLinearLayoutManager.VERTICAL, false));
                         adapter = new ChatAdapter(messages, sendUserInfo, recipientUserInfo);
                         recyclerView.setAdapter(adapter);
                         recyclerView.scrollToPosition(messages.size() - 1);
@@ -391,7 +400,6 @@ public class ChatActivity extends AppCompatActivity {
                         .build()).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
-                        Log.e("shiniu", "onFailure: ");
                     }
 
                     @Override
@@ -403,19 +411,17 @@ public class ChatActivity extends AppCompatActivity {
                             jsonObject = JSON.parseObject(res);
                             keys = jsonObject.keySet();
                         }catch (Exception e){
-                            Log.e("shiniu", "getmessageerror:"+e.getMessage());
+                            Log.e("shiniu", "getmessageerror:"+res);
                             timer.cancel();
                             timer = null;
                             return;
                         }
-                        if (keys.isEmpty()){
-                            Log.e("shiniu", "空");
-                        }else {
+                        if (!keys.isEmpty()){
                             for (final String key:keys){
-                                Log.e("shiniu", "onResponse: "+key);
                                 if (key.equals("error")){
                                     timer.cancel();
                                     timer=null;
+                                    Log.e("shiniu", "onResponse: "+key);
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -475,7 +481,14 @@ public class ChatActivity extends AppCompatActivity {
                                                 .build()).enqueue(new Callback() {
                                             @Override
                                             public void onFailure(Call call, IOException e) {
-                                                Log.e("shiniuokhttp", "getuserinfobyuiderror");
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Toast.makeText(ChatActivity.this, "当前网络异常", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                                timer.cancel();
+                                                timer = null;
                                             }
 
                                             @Override
@@ -513,10 +526,6 @@ public class ChatActivity extends AppCompatActivity {
                                                             messagePro.getContent()+"',1)");
                                                     notificationUntil.sendNotification(reUserinfo.getName(),messagePro.getContent(),PendingIntent.getActivity(ChatActivity.this,0,new Intent(ChatActivity.this,ChatActivity.class).putExtra("senduserinfo",sendUserInfo).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
                                                 }
-                                                Cursor cursor = chatSql.rawQuery("select *from nowmessage where uid = "+key,null);
-                                                if (cursor.moveToFirst()){
-                                                    Log.e("shiniu", "uid:"+ cursor.getInt(cursor.getColumnIndex("uid"))+"name:"+cursor.getString(cursor.getColumnIndex("name"))+"intr:"+cursor.getString(cursor.getColumnIndex("introduction"))+"date:"+cursor.getLong(cursor.getColumnIndex("date"))+"content:"+cursor.getString(cursor.getColumnIndex("content"))+"count:"+cursor.getInt(cursor.getColumnIndex("count")));
-                                                }
                                             }
                                         });
                                     }
@@ -550,7 +559,6 @@ public class ChatActivity extends AppCompatActivity {
         if (okHttpClient == null){
             okHttpClient = new OkHttpClient();
         }
-        Log.e("shiniu", "sendMessage: "+session);
         okHttpClient.newCall(new Request.Builder()
                 .url("http://39.96.40.12:1008/sendmessage")
                 .post(new FormBody.Builder()
@@ -564,7 +572,7 @@ public class ChatActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(ChatActivity.this, "发送消息失败，请检查网络！", Toast.LENGTH_SHORT).show();
+                        adapter.notifyItemChanged(messages.size()-1,"error");
                     }
                 });
             }
@@ -629,6 +637,38 @@ public class ChatActivity extends AppCompatActivity {
             return true;
         } else {
             return false;
+        }
+    }
+
+    private void loadChatMessage(){
+        Cursor chatC = chatSql.rawQuery("select *from message where uid="+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid()+" order by date desc limit "+(page*20+1)+" offset 19",null);
+//        Cursor chatC = chatSql.rawQuery("select *from message where uid="+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid()+" order by date desc limit 20 offset 19",null);
+        Log.e("shiniu", "loadChatMessage: "+page*20+","+(page*20+20));
+        if (chatC.moveToFirst()){
+            int index = 1;
+            long cacheTime;
+            cacheTime = chatC.getLong(chatC.getColumnIndex("date"));
+            messages.add(0,new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
+            while (chatC.moveToNext()){
+                long cacheTimeNext = chatC.getLong(chatC.getColumnIndex("date"));
+                if (cacheTime - cacheTimeNext>600000){
+                    cacheTime = cacheTimeNext;
+                    messages.add(0,new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
+                    index+=1;
+                } else {
+                    cacheTime = cacheTimeNext;
+                    messages.add(0,new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.NOSHOWTIME));
+                    index+=1;
+                }
+            }
+            swipeRefreshLayout.setRefreshing(false);
+            adapter.notifyDataSetChanged();
+            recyclerView.scrollToPosition(index);
+            Log.e("shiniu", "loadChatMessage: "+index);
+            page+=1;
+        }else {
+            swipeRefreshLayout.setRefreshing(false);
+            Toast.makeText(this, "没有更多啦~", Toast.LENGTH_SHORT).show();
         }
     }
 }

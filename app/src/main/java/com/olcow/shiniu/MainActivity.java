@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.olcow.shiniu.entity.UserInfo;
 import com.olcow.shiniu.fragment.FriendcFragment;
 import com.olcow.shiniu.fragment.HomeFragment;
 import com.olcow.shiniu.fragment.MessageFragment;
@@ -178,11 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                     });
                                                 }
                                                 startService(new Intent(MainActivity.this,GetMessageService.class)
-                                                        .putExtra("senduserinfo",
-                                                                new UserInfo(jsonObject1.getInteger("uid"),
-                                                                        jsonObject1.getString("name"),
-                                                                        jsonObject1.getString("avatar"),
-                                                                        jsonObject1.getString("introduction")))
+                                                        .putExtra("senduserinfouid",uid)
                                                         .putExtra("session",session));
                                                 break;
                                         }

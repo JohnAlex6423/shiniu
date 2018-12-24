@@ -36,7 +36,7 @@ public class GetMessageService extends Service {
     private Timer timer;
     private OkHttpClient okHttpClient;
     private NotificationUntil notificationUntil;
-    private UserInfo sendUserInfo;
+    private int sendUid;
     private String session;
     private SQLiteDatabase sqlMessage;
     private Context context;
@@ -56,17 +56,15 @@ public class GetMessageService extends Service {
         if (context == null){
             context = this;
         }
-        sendUserInfo = null;
         session = null;
+        sendUid = 0;
         if (timer == null){
             timer = new Timer();
         }
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (sendUserInfo ==null||session == null){
-                    Log.e("shiniu", "空");
-                }else {
+                if (!(sendUid ==0||session == null)){
                     okHttpClient.newCall(new Request.Builder()
                             .url("http://39.96.40.12:1008/getmessage")
                             .post(new FormBody.Builder()
@@ -75,7 +73,6 @@ public class GetMessageService extends Service {
                             .build()).enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
-                            Log.e("shiniu", "onFailure: ");
                         }
 
                         @Override
@@ -87,27 +84,27 @@ public class GetMessageService extends Service {
                                 jsonObject = JSON.parseObject(res);
                                 keys = jsonObject.keySet();
                             }catch (Exception e){
-                                Log.e("shiniu", "getmessageerror:"+e.getMessage());
+                                Log.e("shiniu", "getmessageerror:"+res);
                                 timer.cancel();
                                 return;
                             }
-                            if (keys.isEmpty()){
-                                Log.e("shiniu", "空");
-                            }else {
+                            if (!keys.isEmpty()){
                                 for (final String key:keys){
-                                    Log.e("shiniu", "onResponse: "+key);
                                     if (key.equals("error")){
+                                        Log.e("shiniu", "getmessageservice get keys error");
                                         timer.cancel();
                                         return;
                                     }
                                     for (final MessagePro messagePro : JSON.parseArray(jsonObject.getString(key),MessagePro.class)){
-                                        sqlMessage.execSQL("insert into message(myuid,uid,date,recipientorsend,content) values("+sendUserInfo.getUid()+","+key+","+messagePro.getDate()+",0,'"+messagePro.getContent()+"')");
+                                        sqlMessage.execSQL("insert into message(myuid,uid,date,recipientorsend,content) values("+sendUid+","+key+","+messagePro.getDate()+",0,'"+messagePro.getContent()+"')");
                                         okHttpClient.newCall(new Request.Builder()
                                                 .url("http://39.96.40.12:1008/getuserinfobyuid?uid="+key)
                                                 .build()).enqueue(new Callback() {
                                             @Override
                                             public void onFailure(Call call, IOException e) {
                                                 Log.e("shiniuokhttp", "getuserinfobyuiderror");
+                                                timer.cancel();
+                                                timer = null;
                                             }
 
                                             @Override
@@ -123,7 +120,7 @@ public class GetMessageService extends Service {
                                                     timer.cancel();
                                                     return;
                                                 }
-                                                Cursor c = sqlMessage.rawQuery("select *from nowmessage where uid = "+key+" and myuid = "+sendUserInfo.getUid(),null);
+                                                Cursor c = sqlMessage.rawQuery("select *from nowmessage where uid = "+key+" and myuid = "+sendUid,null);
                                                 if (c.moveToFirst()){
                                                     sqlMessage.execSQL("update nowmessage set " +
                                                             "name='"+reUserinfo.getName()+
@@ -131,12 +128,12 @@ public class GetMessageService extends Service {
                                                             "',avatar='"+reUserinfo.getAvatar()+
                                                             "',date="+messagePro.getDate()+
                                                             ",content='"+messagePro.getContent()+
-                                                            "',count=count+1 where uid = "+key+" and myuid = "+sendUserInfo.getUid());
+                                                            "',count=count+1 where uid = "+key+" and myuid = "+sendUid);
                                                     notificationUntil.sendNotification(reUserinfo.getName()+"("+(c.getInt(c.getColumnIndex("count"))+1)+"条新消息)",messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
                                                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent().setAction("mainmessagebadge"));
                                                 }else {
                                                     sqlMessage.execSQL("insert into nowmessage values("+
-                                                            sendUserInfo.getUid()+","+
+                                                            sendUid+","+
                                                             key+ ",'"+
                                                             reUserinfo.getName()+ "','"+
                                                             reUserinfo.getIntroduction()+"','"+
@@ -146,10 +143,6 @@ public class GetMessageService extends Service {
                                                     notificationUntil.sendNotification(reUserinfo.getName(),messagePro.getContent(),PendingIntent.getActivity(context,0,new Intent(context,ChatActivity.class).putExtra("recipientuserinfo",reUserinfo),PendingIntent.FLAG_UPDATE_CURRENT));
                                                     LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent().setAction("mainmessagebadge"));
                                                 }
-                                                Cursor cursor = sqlMessage.rawQuery("select *from nowmessage where uid = "+key,null);
-                                                if (cursor.moveToFirst()){
-                                                    Log.e("shiniu", "uid:"+ cursor.getInt(cursor.getColumnIndex("uid"))+"name:"+cursor.getString(cursor.getColumnIndex("name"))+"intr:"+cursor.getString(cursor.getColumnIndex("introduction"))+"date:"+cursor.getLong(cursor.getColumnIndex("date"))+"content:"+cursor.getString(cursor.getColumnIndex("content"))+"count:"+cursor.getInt(cursor.getColumnIndex("count")));
-                                                }
                                             }
                                         });
                                     }
@@ -157,7 +150,6 @@ public class GetMessageService extends Service {
                             }
                         }
                     });
-                    Log.e("shiniu", "session:"+session+" uid:"+sendUserInfo.getUid()+" name:"+sendUserInfo.getName()+" introduction:"+sendUserInfo.getIntroduction()+" avatar:"+sendUserInfo.getAvatar());
                 }
             }
         }, 0, 5000);
@@ -165,7 +157,7 @@ public class GetMessageService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        sendUserInfo = (UserInfo) intent.getSerializableExtra("senduserinfo");
+        sendUid = intent.getIntExtra("senduserinfouid",0);
         session = intent.getStringExtra("session");
         return super.onStartCommand(intent, flags, startId);
     }
@@ -180,5 +172,6 @@ public class GetMessageService extends Service {
     public void onDestroy() {
         super.onDestroy();
         timer.cancel();
+        timer = null;
     }
 }

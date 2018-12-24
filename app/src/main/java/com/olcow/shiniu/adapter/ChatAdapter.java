@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.olcow.shiniu.R;
@@ -86,6 +87,16 @@ public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
     }
 
     @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (payloads.isEmpty()){
+            onBindViewHolder(holder,position);
+        }else {
+            onBindViewHolder(holder,position);
+            holder.sendErrorRedBadge.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
     public int getItemCount() {
         return messages.size();
     }
@@ -95,6 +106,7 @@ public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         TextView sendText;
         TextView recipientText;
         TextView timeText;
+        TextView sendErrorRedBadge;
         LinearLayout recipientCon;
         LinearLayout sendCon;
         ImageView sendAvatar;
@@ -104,6 +116,7 @@ public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
             super(itemView);
             sendText = itemView.findViewById(R.id.chat_send_text);
             recipientText = itemView.findViewById(R.id.chat_recipient_text);
+            sendErrorRedBadge = itemView.findViewById(R.id.chat_rec_message_send_fail);
             timeText = itemView.findViewById(R.id.chat_time);
             recipientCon = itemView.findViewById(R.id.chat_recipient_con);
             sendCon = itemView.findViewById(R.id.chat_sender_con);
