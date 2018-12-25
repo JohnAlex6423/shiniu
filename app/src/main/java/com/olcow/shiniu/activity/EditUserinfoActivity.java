@@ -397,9 +397,14 @@ public class EditUserinfoActivity extends AppCompatActivity {
                                         intent.setAction("changemy");
                                         LocalBroadcastManager.getInstance(EditUserinfoActivity.this).sendBroadcast(intent);
                                     }else {
-                                        saveEditUserInfoButton.setVisibility(View.VISIBLE);
-                                        saveEditProgressBar.setVisibility(View.INVISIBLE);
-                                        Toast.makeText(EditUserinfoActivity.this, "当前状态异常,请稍后重试", Toast.LENGTH_SHORT).show();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                saveEditUserInfoButton.setVisibility(View.VISIBLE);
+                                                saveEditProgressBar.setVisibility(View.INVISIBLE);
+                                                Toast.makeText(EditUserinfoActivity.this, "当前状态异常,请稍后重试", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
                                     }
                                 }
                             });

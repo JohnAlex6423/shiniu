@@ -189,14 +189,6 @@ public class UserinfoActivity extends Activity {
                                             }
                                         });
                                         break;
-                                    case "no activity":
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(UserinfoActivity.this, "您还未激活，若已激活请点击->我的->刷新状态", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                        break;
                                     case "already add":
                                         runOnUiThread(new Runnable() {
                                             @Override

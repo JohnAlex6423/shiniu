@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.olcow.shiniu.R;
@@ -47,6 +46,7 @@ public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
         if (messages.get(i).getSendOrRecipient()==Message.RECIPIENT){
+            viewHolder.timeText.setVisibility(View.GONE);
             if (messages.get(i).getShowTime()==0){
                 viewHolder.timeText.setVisibility(View.VISIBLE);
                 viewHolder.timeText.setText(messages.get(i).getTime());
@@ -55,6 +55,7 @@ public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
                     .load(recipientUserInfo.getAvatar())
                     .into(viewHolder.recipientAvatar);
             viewHolder.recipientText.setText(messages.get(i).getContent());
+            viewHolder.sendCon.setVisibility(View.GONE);
             viewHolder.recipientCon.setVisibility(View.VISIBLE);
             viewHolder.recipientAvatar.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -66,6 +67,7 @@ public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
             });
         }
         if (messages.get(i).getSendOrRecipient()==Message.SEND){
+            viewHolder.timeText.setVisibility(View.GONE);
             if (messages.get(i).getShowTime()==0){
                 viewHolder.timeText.setVisibility(View.VISIBLE);
                 viewHolder.timeText.setText(messages.get(i).getTime());
@@ -74,6 +76,7 @@ public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
                     .load(sendUserInfo.getAvatar())
                     .into(viewHolder.sendAvatar);
             viewHolder.sendText.setText(messages.get(i).getContent());
+            viewHolder.recipientCon.setVisibility(View.GONE);
             viewHolder.sendCon.setVisibility(View.VISIBLE);
             viewHolder.sendAvatar.setOnClickListener(new View.OnClickListener() {
                 @Override

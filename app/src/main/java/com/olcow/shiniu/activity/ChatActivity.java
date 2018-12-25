@@ -69,6 +69,7 @@ public class ChatActivity extends AppCompatActivity {
     private NotificationUntil notificationUntil;
     private SwipeRefreshLayout swipeRefreshLayout;
     private int page = 1;
+    private int messageCount = 0;
     private long coolTime = 0;
 
     @Override
@@ -189,6 +190,7 @@ public class ChatActivity extends AppCompatActivity {
                 Cursor chatC = chatSql.rawQuery("select *from message where uid="+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid()+" order by date desc limit 0,20",null);
                 if (chatC.moveToLast()){
                     long cacheTime;
+                    messageCount+=1;
                     cacheTime = chatC.getLong(chatC.getColumnIndex("date"));
                     messages.add(new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
                     while (chatC.moveToPrevious()){
@@ -196,9 +198,11 @@ public class ChatActivity extends AppCompatActivity {
                         if (cacheTime - cacheTimeNext>600000){
                             cacheTime = cacheTimeNext;
                             messages.add(new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
+                            messageCount+=1;
                         } else {
                             cacheTime = cacheTimeNext;
                             messages.add(new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.NOSHOWTIME));
+                            messageCount+=1;
                         }
                     }
                 }
@@ -273,14 +277,17 @@ public class ChatActivity extends AppCompatActivity {
                     long cacheTime;
                     cacheTime = chatC.getLong(chatC.getColumnIndex("date"));
                     messages.add(new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
+                    messageCount+=1;
                     while (chatC.moveToPrevious()){
                         long cacheTimeNext = chatC.getLong(chatC.getColumnIndex("date"));
                         if (cacheTime - cacheTimeNext>600000){
                             cacheTime = cacheTimeNext;
                             messages.add(new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
+                            messageCount+=1;
                         } else {
                             cacheTime = cacheTimeNext;
                             messages.add(new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.NOSHOWTIME));
+                            messageCount+=1;
                         }
                     }
                 }
@@ -451,6 +458,7 @@ public class ChatActivity extends AppCompatActivity {
                                             public void run() {
                                                 adapter.notifyItemInserted(messages.size()-1);
                                                 recyclerView.scrollToPosition(messages.size()-1);
+                                                messageCount+=1;
                                             }
                                         });
                                         Cursor c = chatSql.rawQuery("select *from nowmessage where uid = "+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid(),null);
@@ -592,6 +600,7 @@ public class ChatActivity extends AppCompatActivity {
                         chatSql = new ChatDatabaseHelper(ChatActivity.this,"chatmessage",null,1).getWritableDatabase();
                     }
                     chatSql.execSQL("insert into message(myuid,uid,date,recipientorsend,content) values("+sendUserInfo.getUid()+","+recipientUserInfo.getUid()+","+res+",1,'"+content+"')");
+                    messageCount+=1;
                     Cursor c = chatSql.rawQuery("select * from nowmessage where uid = "+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid(),null);
                     if (c.moveToFirst()){
                         chatSql.execSQL("update nowmessage set " +
@@ -641,9 +650,14 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void loadChatMessage(){
-        Cursor chatC = chatSql.rawQuery("select *from message where uid="+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid()+" order by date desc limit "+(page*20+1)+" offset 19",null);
-//        Cursor chatC = chatSql.rawQuery("select *from message where uid="+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid()+" order by date desc limit 20 offset 19",null);
-        Log.e("shiniu", "loadChatMessage: "+page*20+","+(page*20+20));
+        Cursor chatC;
+        if (page == 1){
+            chatC = chatSql.rawQuery("select *from message where uid="+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid()+" order by date desc limit "+messageCount+","+20,null);
+            Log.e("shiniu", "loadChat: "+(messageCount));
+        }else {
+            chatC = chatSql.rawQuery("select *from message where uid="+recipientUserInfo.getUid()+" and myuid = "+sendUserInfo.getUid()+" order by date desc limit "+(page*20+messageCount-20)+","+20,null);
+            Log.e("shiniu", "loadChat: "+(page*20+messageCount-20));
+        }
         if (chatC.moveToFirst()){
             int index = 1;
             long cacheTime;
@@ -664,7 +678,6 @@ public class ChatActivity extends AppCompatActivity {
             swipeRefreshLayout.setRefreshing(false);
             adapter.notifyDataSetChanged();
             recyclerView.scrollToPosition(index);
-            Log.e("shiniu", "loadChatMessage: "+index);
             page+=1;
         }else {
             swipeRefreshLayout.setRefreshing(false);

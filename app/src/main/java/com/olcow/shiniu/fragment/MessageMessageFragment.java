@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,6 +47,7 @@ public class MessageMessageFragment extends Fragment {
     private MyBroadcastReceiver myBroadcastReceiver;
     private LocalBroadcastManager localBroadcastManager;
     private UserInfo sendUserInfo;
+    private SwipeRefreshLayout swipeRefreshLayout;
     public MessageMessageFragment() {
         // Required empty public constructor
     }
@@ -59,6 +61,7 @@ public class MessageMessageFragment extends Fragment {
         errorMessageText = view.findViewById(R.id.message_message_error);
         noneMessageText = view.findViewById(R.id.message_message_none);
         nowMessageReList = view.findViewById(R.id.message_message_rec);
+        swipeRefreshLayout = view.findViewById(R.id.message_message_swipe);
         return view;
     }
 
@@ -165,6 +168,14 @@ public class MessageMessageFragment extends Fragment {
             nowMessageReList.setItemAnimator(new DefaultItemAnimator());
             nowMessageReList.setAdapter(nowMessageAdapter);
             nowMessageReList.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setColorSchemeColors(-745928);
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    Toast.makeText(getActivity(), "都是自动更新的不需要刷新哦~", Toast.LENGTH_SHORT).show();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            });
         }else {
             noneMessageText.setVisibility(View.VISIBLE);
         }

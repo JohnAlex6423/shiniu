@@ -122,75 +122,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             });
                             break;
                         default:
-                            JSONObject jsonObject = JSON.parseObject(res);
-                            if (jsonObject.getInteger("permission") != 0) {
-                                Request request1 = new Request.Builder()
-                                        .url("http://39.96.40.12:7703/getuserinfobysession")
-                                        .post(new FormBody.Builder().add("session", session).build())
-                                        .build();
-                                Call call1 = okHttpClient.newCall(request1);
-                                call1.enqueue(new Callback() {
-                                    @Override
-                                    public void onFailure(Call call, IOException e) {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(MainActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onResponse(Call call, Response response) throws IOException {
-                                        String userInfo = response.body().string();
-                                        switch (userInfo) {
-                                            case "null":
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(MainActivity.this, "账号还未激活,请尽快激活", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
-                                                break;
-                                            case "not exist session":
-                                            case "redis error":
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(MainActivity.this, "服务器异常,请稍后再试", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
-                                                break;
-                                            default:
-                                                JSONObject jsonObject1 = JSON.parseObject(userInfo);
-                                                try {
-                                                    sqLiteDatabase.execSQL("delete from userinfo");
-                                                    sqLiteDatabase.execSQL("insert into userinfo(uid,name,avatar,introduction) values(" + jsonObject1.getInteger("uid") + ",'" + jsonObject1.getString("name") + "','" + jsonObject1.getString("avatar") + "','" + jsonObject1.getString("introduction") + "')");
-
-                                                } catch (Exception e) {
-                                                    Log.e("shiniu.okhttp", e.getMessage());
-                                                    runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            Toast.makeText(MainActivity.this, "缓存异常", Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    });
-                                                }
-                                                startService(new Intent(MainActivity.this,GetMessageService.class)
-                                                        .putExtra("senduserinfouid",uid)
-                                                        .putExtra("session",session));
-                                                break;
+                            Request request1 = new Request.Builder()
+                                    .url("http://39.96.40.12:7703/getuserinfobysession")
+                                    .post(new FormBody.Builder().add("session", session).build())
+                                    .build();
+                            Call call1 = okHttpClient.newCall(request1);
+                            call1.enqueue(new Callback() {
+                                @Override
+                                public void onFailure(Call call, IOException e) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(MainActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
                                         }
+                                    });
+                                }
+
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    String userInfo = response.body().string();
+                                    switch (userInfo) {
+                                        case "null":
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(MainActivity.this, "账号还未激活,请尽快激活", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                            break;
+                                        case "not exist session":
+                                        case "redis error":
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(MainActivity.this, "服务器异常,请稍后再试", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                            break;
+                                        default:
+                                            JSONObject jsonObject1 = JSON.parseObject(userInfo);
+                                            try {
+                                                sqLiteDatabase.execSQL("delete from userinfo");
+                                                sqLiteDatabase.execSQL("insert into userinfo(uid,name,avatar,introduction) values(" + jsonObject1.getInteger("uid") + ",'" + jsonObject1.getString("name") + "','" + jsonObject1.getString("avatar") + "','" + jsonObject1.getString("introduction") + "')");
+
+                                            } catch (Exception e) {
+                                                Log.e("shiniu.okhttp", e.getMessage());
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Toast.makeText(MainActivity.this, "缓存异常", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                            }
+                                            startService(new Intent(MainActivity.this,GetMessageService.class)
+                                                    .putExtra("senduserinfouid",uid)
+                                                    .putExtra("session",session));
+                                            break;
                                     }
-                                });
-                            } else {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(MainActivity.this, "账号还未激活,如已激活,请去我的->刷新我的用户状态", Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                            }
+                                }
+                            });
                             break;
                     }
                 }

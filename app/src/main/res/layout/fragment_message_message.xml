@@ -11,14 +11,22 @@
         android:layout_height="10dp"
         />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/message_message_rec"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/message_message_swipe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_touch_grey"
-        app:layout_constraintTop_toBottomOf="@id/message_message_head_view"
-        >
-    </android.support.v7.widget.RecyclerView>
+        app:layout_constraintTop_toBottomOf="@id/message_message_head_view">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/message_message_rec"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            android:background="@drawable/bg_touch_grey"
+            >
+        </android.support.v7.widget.RecyclerView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView
         android:id="@+id/message_message_none"
