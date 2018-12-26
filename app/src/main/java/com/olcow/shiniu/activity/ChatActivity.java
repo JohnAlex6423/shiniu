@@ -662,7 +662,20 @@ public class ChatActivity extends AppCompatActivity {
             int index = 1;
             long cacheTime;
             cacheTime = chatC.getLong(chatC.getColumnIndex("date"));
-            messages.add(0,new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
+            Message firstMessage = new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.NOSHOWTIME);
+            if (chatC.moveToNext()){
+                if (cacheTime - chatC.getLong(chatC.getColumnIndex("date"))>600000){
+                    firstMessage.setShowTime(Message.ISSHOWTIME);
+                    messages.add(0,firstMessage);
+                    chatC.moveToFirst();
+                }else {
+                    messages.add(0,firstMessage);
+                    chatC.moveToFirst();
+                }
+            }else {
+                messages.add(0,new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
+            }
+            Message lastMessage = null;
             while (chatC.moveToNext()){
                 long cacheTimeNext = chatC.getLong(chatC.getColumnIndex("date"));
                 if (cacheTime - cacheTimeNext>600000){
@@ -671,9 +684,14 @@ public class ChatActivity extends AppCompatActivity {
                     index+=1;
                 } else {
                     cacheTime = cacheTimeNext;
-                    messages.add(0,new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.NOSHOWTIME));
+                    lastMessage = new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.NOSHOWTIME);
+                    messages.add(0,lastMessage);
                     index+=1;
                 }
+            }
+            if (lastMessage!=null){
+                lastMessage.setShowTime(Message.ISSHOWTIME);
+                messages.set(0,lastMessage);
             }
             swipeRefreshLayout.setRefreshing(false);
             adapter.notifyDataSetChanged();

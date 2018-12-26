@@ -13,8 +13,7 @@
         android:roundIcon="@drawable/ic_olcowlog_50dp"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <service android:name=".service.GetMessageService"></service>
+        <service android:name=".service.GetMessageService" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -40,10 +39,11 @@
         <activity android:name=".activity.UserinfoActivity" />
         <activity
             android:name=".activity.SearchDetailsActivity"
-            android:windowSoftInputMode="stateHidden"></activity>
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".activity.ChatActivity"
-            android:theme="@style/SettingsTheme"></activity>
+            android:theme="@style/SettingsTheme" />
+        <activity android:name=".activity.SendPostActivity"></activity>
     </application>
 
 </manifest>

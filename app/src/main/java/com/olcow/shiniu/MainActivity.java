@@ -15,13 +15,18 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.olcow.shiniu.activity.SendPostActivity;
 import com.olcow.shiniu.fragment.FriendcFragment;
 import com.olcow.shiniu.fragment.HomeFragment;
 import com.olcow.shiniu.fragment.MessageFragment;
@@ -347,6 +352,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
                 break;
+            case R.id.plusl:
+                startActivity(new Intent(this,SendPostActivity.class));
+                overridePendingTransition(R.anim.alpha_to,R.anim.stay);
         }
     }
 
