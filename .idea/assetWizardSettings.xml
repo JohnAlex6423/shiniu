@@ -33,10 +33,13 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="8a8a8a" />
-                            <entry key="outputName" value="ic_close_black_24dp" />
+                            <entry key="height" value="50" />
+                            <entry key="outputName" value="ic_olcow_edit_post" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="C:\Users\LaoZhao" />
+                            <entry key="sourceFile" value="C:\Users\LaoZhao\Desktop\图片素材\1x\1x\SVG\ic_olcow_edit_post.svg" />
+                            <entry key="width" value="50" />
                           </map>
                         </option>
                       </PersistentState>

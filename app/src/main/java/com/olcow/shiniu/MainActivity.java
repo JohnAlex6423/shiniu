@@ -354,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.plusl:
                 startActivity(new Intent(this,SendPostActivity.class));
-                overridePendingTransition(R.anim.alpha_to,R.anim.stay);
+                overridePendingTransition(0,0);
         }
     }
 

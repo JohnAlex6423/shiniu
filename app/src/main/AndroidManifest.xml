@@ -8,9 +8,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_olcowlog_50dp"
+        android:icon="@drawable/olcow_log_shadow"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/ic_olcowlog_50dp"
+        android:roundIcon="@drawable/olcow_log_shadow"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service android:name=".service.GetMessageService" />

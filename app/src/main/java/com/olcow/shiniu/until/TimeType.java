@@ -164,4 +164,34 @@ public class TimeType {
             return calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH);
         }
     }
+
+    public static String getNowDayOfWeek(){
+        Calendar calendar = Calendar.getInstance();
+        switch (calendar.get(Calendar.DAY_OF_WEEK) - 1) {
+            case 0:
+                return "星期日";
+            case 1:
+                return "星期一";
+            case 2:
+                return "星期二";
+            case 3:
+                return "星期三";
+            case 4:
+                return "星期四";
+            case 5:
+                return "星期五";
+            case 6:
+                return "星期六";
+            default:
+                return "";
+        }
+    }
+    public static String getNowDayOfMonth(){
+        Calendar calendar = Calendar.getInstance();
+        return String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
+    }
+    public static String getNowYear(){
+        Calendar calendar = Calendar.getInstance();
+        return (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.YEAR);
+    }
 }
