@@ -195,7 +195,7 @@ public class ChatActivity extends AppCompatActivity {
                     messages.add(new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
                     while (chatC.moveToPrevious()){
                         long cacheTimeNext = chatC.getLong(chatC.getColumnIndex("date"));
-                        if (cacheTime - cacheTimeNext>600000){
+                        if (cacheTimeNext - cacheTime>600000){
                             cacheTime = cacheTimeNext;
                             messages.add(new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
                             messageCount+=1;
@@ -280,7 +280,7 @@ public class ChatActivity extends AppCompatActivity {
                     messageCount+=1;
                     while (chatC.moveToPrevious()){
                         long cacheTimeNext = chatC.getLong(chatC.getColumnIndex("date"));
-                        if (cacheTime - cacheTimeNext>600000){
+                        if (cacheTimeNext - cacheTime>600000){
                             cacheTime = cacheTimeNext;
                             messages.add(new Message(chatC.getString(chatC.getColumnIndex("content")),TimeType.getMessageTimeText(cacheTime),chatC.getInt(chatC.getColumnIndex("recipientorsend")),Message.ISSHOWTIME));
                             messageCount+=1;

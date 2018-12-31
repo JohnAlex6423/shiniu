@@ -43,7 +43,8 @@
         <activity
             android:name=".activity.ChatActivity"
             android:theme="@style/SettingsTheme" />
-        <activity android:name=".activity.SendPostActivity"></activity>
+        <activity android:name=".activity.SendPostActivity" />
+        <activity android:name=".activity.EditPostActivity"></activity>
     </application>
 
 </manifest>

@@ -204,14 +204,12 @@ public class EditUserinfoActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode){
             case 2:
-                Uri uri;
                 if (data == null){
                     return;
                 }
-                uri = data.getData();
+                Uri uri = data.getData();
                 UCrop.of(uri, Uri.fromFile(new File(this.getCacheDir(),"cropcache.jpeg")))
                         .withAspectRatio(1, 1)
                         .withMaxResultSize(500, 500)

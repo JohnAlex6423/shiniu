@@ -2,11 +2,16 @@ package com.olcow.shiniu.activity;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -14,19 +19,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.olcow.shiniu.R;
+import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
 import com.olcow.shiniu.until.TimeType;
-
-import java.sql.Time;
 
 public class SendPostActivity extends AppCompatActivity {
 
     private ImageView closeImg;
+    private ImageView editPostImg;
     private ConstraintLayout con;
     private ConstraintLayout iconsCon;
     private ConstraintLayout headerCon;
     private TextView dayOfMonthText;
     private TextView dayOfWeekText;
     private TextView yearText;
+    private SQLiteDatabase sqLiteDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +49,9 @@ public class SendPostActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if (sqLiteDatabase==null){
+            sqLiteDatabase = new AccountDatabaseHelper(this,"olcowsso",null,1).getReadableDatabase();
+        }
         con = findViewById(R.id.send_post_con_con);
         closeImg = findViewById(R.id.send_post_close);
         iconsCon = findViewById(R.id.send_post_icons_con);
@@ -50,6 +59,7 @@ public class SendPostActivity extends AppCompatActivity {
         dayOfWeekText = findViewById(R.id.send_post_week_text);
         yearText = findViewById(R.id.send_post_year_text);
         headerCon = findViewById(R.id.send_post_header_con);
+        editPostImg = findViewById(R.id.send_edit_post_img);
         con.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,6 +77,24 @@ public class SendPostActivity extends AppCompatActivity {
         animatorSet.start();
         ObjectAnimator.ofFloat(headerCon,"alpha",0,1).setDuration(300).start();
         ObjectAnimator.ofFloat(con,"alpha",0,1).setDuration(300).start();
+        Cursor cursor = sqLiteDatabase.rawQuery("select name from userinfo",null);
+        if (cursor.moveToFirst()){
+            editPostImg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(SendPostActivity.this,EditPostActivity.class));
+                    finish();
+                }
+            });
+        }else {
+            editPostImg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(SendPostActivity.this, LoginActivity.class));
+                    finish();
+                }
+            });
+        }
     }
 
     @Override

@@ -8,7 +8,7 @@ public class TimeType {
     public static String getMessageTimeText(long time){
         Calendar calendar = Calendar.getInstance();
         long now = calendar.getTime().getTime();
-        if (now - time >86400000&&now-time<604800000){
+        if (now - time >=172800000&&now-time<604800000){
             calendar.setTime(new Date(time));
             String dayOfWeekText;
             switch (calendar.get(Calendar.DAY_OF_WEEK)-1){
@@ -51,7 +51,7 @@ public class TimeType {
                 minText = String.valueOf(min);
             }
             return dayOfWeekText+" "+hourDayText+":"+minText;
-        } else if (now - time <86400000){
+        } else if (now - time <172800000){
             int nowDay = calendar.get(Calendar.DAY_OF_MONTH);
             calendar.setTime(new Date(time));
             int sendDay = calendar.get(Calendar.DAY_OF_MONTH);
