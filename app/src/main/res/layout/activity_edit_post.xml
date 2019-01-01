@@ -41,7 +41,6 @@
             android:id="@+id/edit_post_name_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="完全自杀手册"
             android:textSize="12sp"
             app:layout_constraintTop_toBottomOf="@+id/edit_post_title_text"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -97,77 +96,233 @@
 
                 <ImageView
                     android:id="@+id/edit_post_img1"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     app:srcCompat="@drawable/ic_img_plus"
                     android:layout_margin="5dp"
-                    android:scaleType="center"
+                    android:scaleType="centerCrop"
                     android:visibility="invisible"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toLeftOf="@+id/edit_post_img2"/>
 
+                <TextView
+                    android:id="@+id/edit_post_img1_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#64739cf4"
+                    android:text="编辑"
+                    android:textColor="@color/white"
+                    android:padding="3dp"
+                    android:visibility="gone"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_post_img1"
+                    app:layout_constraintLeft_toLeftOf="@+id/edit_post_img1"/>
+
+                <TextView
+                    android:id="@+id/edit_post_img1_clean"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="X"
+                    android:padding="3dp"
+                    android:textColor="@color/white"
+                    android:background="#64000000"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="@id/edit_post_img1"
+                    app:layout_constraintRight_toRightOf="@id/edit_post_img1"/>
+
                 <ImageView
                     android:id="@+id/edit_post_img2"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     app:srcCompat="@drawable/ic_img_plus"
                     android:layout_marginTop="5dp"
                     android:adjustViewBounds="true"
                     android:visibility="invisible"
+                    android:scaleType="centerCrop"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/edit_post_img1"
                     app:layout_constraintRight_toLeftOf="@+id/edit_post_img3"/>
 
+                <TextView
+                    android:id="@+id/edit_post_img2_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#64739cf4"
+                    android:text="编辑"
+                    android:textColor="@color/white"
+                    android:padding="3dp"
+                    android:visibility="gone"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_post_img2"
+                    app:layout_constraintLeft_toLeftOf="@+id/edit_post_img2"/>
+
+                <TextView
+                    android:id="@+id/edit_post_img2_clean"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="X"
+                    android:padding="3dp"
+                    android:textColor="@color/white"
+                    android:background="#64000000"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="@id/edit_post_img2"
+                    app:layout_constraintRight_toRightOf="@id/edit_post_img2"/>
+
                 <ImageView
                     android:id="@+id/edit_post_img3"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     app:srcCompat="@drawable/ic_img_plus"
                     android:layout_margin="5dp"
                     android:adjustViewBounds="true"
                     android:visibility="invisible"
+                    android:scaleType="centerCrop"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/edit_post_img2"
                     app:layout_constraintRight_toRightOf="parent"/>
 
+                <TextView
+                    android:id="@+id/edit_post_img3_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#64739cf4"
+                    android:text="编辑"
+                    android:textColor="@color/white"
+                    android:padding="3dp"
+                    android:visibility="gone"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_post_img3"
+                    app:layout_constraintLeft_toLeftOf="@+id/edit_post_img3"/>
+
+                <TextView
+                    android:id="@+id/edit_post_img3_clean"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="X"
+                    android:padding="3dp"
+                    android:textColor="@color/white"
+                    android:background="#64000000"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="@id/edit_post_img3"
+                    app:layout_constraintRight_toRightOf="@id/edit_post_img3"/>
+
+
                 <ImageView
                     android:id="@+id/edit_post_img4"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     app:srcCompat="@drawable/ic_img_plus"
                     android:layout_margin="5dp"
                     android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
                     android:visibility="invisible"
                     app:layout_constraintTop_toBottomOf="@id/edit_post_img1"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toLeftOf="@+id/edit_post_img5"/>
 
+                <TextView
+                    android:id="@+id/edit_post_img4_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#64739cf4"
+                    android:text="编辑"
+                    android:textColor="@color/white"
+                    android:padding="3dp"
+                    android:visibility="gone"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_post_img4"
+                    app:layout_constraintLeft_toLeftOf="@+id/edit_post_img4"/>
+
+                <TextView
+                    android:id="@+id/edit_post_img4_clean"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="X"
+                    android:padding="3dp"
+                    android:textColor="@color/white"
+                    android:background="#64000000"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="@id/edit_post_img4"
+                    app:layout_constraintRight_toRightOf="@id/edit_post_img4"/>
+
                 <ImageView
                     android:id="@+id/edit_post_img5"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     app:srcCompat="@drawable/ic_img_plus"
                     android:adjustViewBounds="true"
                     android:layout_marginTop="5dp"
+                    android:scaleType="centerCrop"
                     android:visibility="invisible"
                     app:layout_constraintTop_toBottomOf="@id/edit_post_img2"
                     app:layout_constraintLeft_toRightOf="@+id/edit_post_img4"
                     app:layout_constraintRight_toLeftOf="@+id/edit_post_img6"/>
 
+                <TextView
+                    android:id="@+id/edit_post_img5_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#64739cf4"
+                    android:text="编辑"
+                    android:textColor="@color/white"
+                    android:padding="3dp"
+                    android:visibility="gone"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_post_img5"
+                    app:layout_constraintLeft_toLeftOf="@+id/edit_post_img5"/>
+
+                <TextView
+                    android:id="@+id/edit_post_img5_clean"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="X"
+                    android:padding="3dp"
+                    android:textColor="@color/white"
+                    android:background="#64000000"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="@id/edit_post_img5"
+                    app:layout_constraintRight_toRightOf="@id/edit_post_img5"/>
+
                 <ImageView
                     android:id="@+id/edit_post_img6"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     app:srcCompat="@drawable/ic_img_plus"
                     android:layout_margin="5dp"
                     android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
                     android:visibility="invisible"
                     app:layout_constraintTop_toBottomOf="@id/edit_post_img3"
                     app:layout_constraintLeft_toRightOf="@+id/edit_post_img5"
                     app:layout_constraintRight_toRightOf="parent"
                     />
-0
+
+                <TextView
+                    android:id="@+id/edit_post_img6_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#64739cf4"
+                    android:text="编辑"
+                    android:textColor="@color/white"
+                    android:padding="3dp"
+                    android:visibility="gone"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_post_img6"
+                    app:layout_constraintLeft_toLeftOf="@+id/edit_post_img6"/>
+
+                <TextView
+                    android:id="@+id/edit_post_img6_clean"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="X"
+                    android:padding="3dp"
+                    android:textColor="@color/white"
+                    android:background="#64000000"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="@id/edit_post_img6"
+                    app:layout_constraintRight_toRightOf="@id/edit_post_img6"/>
+
             </android.support.constraint.ConstraintLayout>
 
         </android.support.constraint.ConstraintLayout>
