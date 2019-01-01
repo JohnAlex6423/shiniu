@@ -17,16 +17,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.olcow.shiniu.MainActivity;
 import com.olcow.shiniu.R;
 import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
+import com.rengwuxian.materialedittext.MaterialEditText;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class EditPostActivity extends AppCompatActivity implements View.OnClickListener {
@@ -56,6 +70,10 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
     private TextView img6Edit;
     private ImageView addImg;
     private int imgCount = 1;
+    private int cropIndex;
+    private OkHttpClient okHttpClient;
+    private MaterialEditText postEdit;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +87,8 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
         sendPostText = findViewById(R.id.edit_post_send_text);
         nameText = findViewById(R.id.edit_post_name_text);
         addImg = findViewById(R.id.edit_post_addimg);
+        postEdit = findViewById(R.id.edit_post_edit);
+        progressBar = findViewById(R.id.edit_post_progress);
         Cursor c = sqLiteDatabase.rawQuery("select name from userinfo",null);
         String name;
         if (c.moveToFirst()){
@@ -89,6 +109,213 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                 Intent intent = new Intent(Intent.ACTION_PICK,null);
                 intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*");
                 startActivityForResult(intent,imgCount);
+            }
+        });
+        sendPostText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (imgCount<2){
+                    if (postEdit.getText().toString().length()==0){
+                        Toast.makeText(EditPostActivity.this, "发表内容不能为空", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    progressBar.setVisibility(View.VISIBLE);
+                    if (okHttpClient==null){
+                        okHttpClient = new OkHttpClient();
+                    }
+                    if (session == null){
+                        getSession();
+                    }
+                    if (session.equals("error")){
+                        Toast.makeText(EditPostActivity.this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                        return;
+                    }
+                    okHttpClient.newCall(new Request.Builder()
+                            .url("http://39.96.40.12:7678/post/addpost")
+                            .post(new FormBody.Builder()
+                                    .add("session",session)
+                                    .add("content",postEdit.getText().toString())
+                                    .add("imgs","").build())
+                            .build()).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(EditPostActivity.this, "网络链接失败，请稍后重试", Toast.LENGTH_SHORT).show();
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            String res = response.body().string();
+                            switch (res) {
+                                case "successful":
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            progressBar.setVisibility(View.GONE);
+                                            Toast.makeText(EditPostActivity.this, "发表成功", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                    finish();
+                                    break;
+                                case "no login":
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            progressBar.setVisibility(View.GONE);
+                                            Toast.makeText(EditPostActivity.this, "当前登陆失效，请重新登陆", Toast.LENGTH_SHORT).show();
+                                            sqLiteDatabase.execSQL("delete from account", null);
+                                            sqLiteDatabase.execSQL("delete from userinfo", null);
+                                            Intent intent = new Intent(EditPostActivity.this, MainActivity.class);
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                        }
+                                    });
+                                    break;
+                                case "error":
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(EditPostActivity.this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                    break;
+                                default:
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(EditPostActivity.this, "环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                            }
+                        }
+                    });
+                }else {
+                    progressBar.setVisibility(View.VISIBLE);
+                    MultipartBody.Builder mBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+                    for (int i = 1;i<imgCount;i++){
+                        File file = new File(getCacheDir(),"sendpostimg"+i+".jpeg");
+                        mBuilder.addFormDataPart("file",file.getName(),RequestBody.create(MediaType.parse("file"),file));
+                    }
+                    if (okHttpClient == null){
+                        okHttpClient = new OkHttpClient();
+                    }
+                    okHttpClient.newCall(new Request.Builder()
+                            .url("http://123.206.93.200:8080/upload")
+                            .post(mBuilder.build())
+                            .build()).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(EditPostActivity.this, "网络异常，请重试", Toast.LENGTH_SHORT).show();
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            String res = response.body().string();
+                            if (!res.substring(0, 1).equals("[")){
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(EditPostActivity.this, "上传图片失败，请稍后重试", Toast.LENGTH_SHORT).show();
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                });
+                                return;
+                            }
+                            if (okHttpClient==null){
+                                okHttpClient = new OkHttpClient();
+                            }
+                            if (session == null){
+                                getSession();
+                            }
+                            if (session.equals("error")){
+                                Toast.makeText(EditPostActivity.this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                });
+                                return;
+                            }
+                            okHttpClient.newCall(new Request.Builder()
+                                    .url("http://39.96.40.12:7678/post/addpost")
+                                    .post(new FormBody.Builder()
+                                            .add("session",session)
+                                            .add("content",postEdit.getText().toString())
+                                            .add("imgs",res).build())
+                                    .build()).enqueue(new Callback() {
+                                @Override
+                                public void onFailure(Call call, IOException e) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            progressBar.setVisibility(View.GONE);
+                                            Toast.makeText(EditPostActivity.this, "网络链接失败，请稍后重试", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    String res = response.body().string();
+                                    switch (res) {
+                                        case "successful":
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    progressBar.setVisibility(View.GONE);
+                                                    Toast.makeText(EditPostActivity.this, "发表成功", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                            finish();
+                                            break;
+                                        case "no login":
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    progressBar.setVisibility(View.GONE);
+                                                    Toast.makeText(EditPostActivity.this, "当前登陆失效，请重新登陆", Toast.LENGTH_SHORT).show();
+                                                    sqLiteDatabase.execSQL("delete from account", null);
+                                                    sqLiteDatabase.execSQL("delete from userinfo", null);
+                                                    Intent intent = new Intent(EditPostActivity.this, MainActivity.class);
+                                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                    startActivity(intent);
+                                                }
+                                            });
+                                            break;
+                                        case "error":
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(EditPostActivity.this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                            break;
+                                            default:
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Toast.makeText(EditPostActivity.this, "环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
             }
         });
     }
@@ -153,11 +380,6 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case 7:
                 if (resultCode == -1){
-//                    Uri uri7 = Uri.fromFile(new File(getCacheDir(),"sendpostimg1.jpeg"));
-//                    Glide.with(this)
-//                            .load(uri7)
-//                            .apply(RequestOptions.placeholderOf(R.drawable.olcowlog_ye_touxiang).diskCacheStrategy(DiskCacheStrategy.NONE))
-//                            .into(img1);
                     Bitmap bitmap = getLocalBitmap(getCacheDir()+"/sendpostimg1.jpeg");
                     if (bitmap != null ){
                         img1.setImageBitmap(bitmap);
@@ -166,13 +388,6 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                         return;
                     }
                     img1.setVisibility(View.VISIBLE);
-                    if (img1Clean==null){
-                        img1Clean = findViewById(R.id.edit_post_img1_clean);
-                        img1Clean.setOnClickListener(this);
-                    }
-                    if (img1Edit==null){
-                        img1Edit = findViewById(R.id.edit_post_img1_edit);
-                    }
                     img1Clean.setVisibility(View.VISIBLE);
                     img1Edit.setVisibility(View.VISIBLE);
                     img2.setVisibility(View.VISIBLE);
@@ -187,12 +402,6 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                     }else {
                         Toast.makeText(this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
                         return;
-                    }
-                    if (img2Clean==null){
-                        img2Clean = findViewById(R.id.edit_post_img2_clean);
-                    }
-                    if (img2Edit==null){
-                        img2Edit = findViewById(R.id.edit_post_img2_edit);
                     }
                     img2Clean.setVisibility(View.VISIBLE);
                     img2Edit.setVisibility(View.VISIBLE);
@@ -209,12 +418,6 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                         Toast.makeText(this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    if (img3Clean==null){
-                        img3Clean = findViewById(R.id.edit_post_img3_clean);
-                    }
-                    if (img3Edit==null){
-                        img3Edit = findViewById(R.id.edit_post_img3_edit);
-                    }
                     img3Clean.setVisibility(View.VISIBLE);
                     img3Edit.setVisibility(View.VISIBLE);
                     img4.setVisibility(View.VISIBLE);
@@ -229,12 +432,6 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                     }else {
                         Toast.makeText(this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
                         return;
-                    }
-                    if (img4Clean==null){
-                        img4Clean = findViewById(R.id.edit_post_img4_clean);
-                    }
-                    if (img4Edit==null){
-                        img4Edit = findViewById(R.id.edit_post_img4_edit);
                     }
                     img4Clean.setVisibility(View.VISIBLE);
                     img4Edit.setVisibility(View.VISIBLE);
@@ -251,12 +448,6 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                         Toast.makeText(this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    if (img5Clean==null){
-                        img5Clean = findViewById(R.id.edit_post_img5_clean);
-                    }
-                    if (img5Edit==null){
-                        img5Edit = findViewById(R.id.edit_post_img5_edit);
-                    }
                     img5Clean.setVisibility(View.VISIBLE);
                     img5Edit.setVisibility(View.VISIBLE);
                     img6.setVisibility(View.VISIBLE);
@@ -272,17 +463,21 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                         Toast.makeText(this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    if (img6Clean==null){
-                        img6Clean = findViewById(R.id.edit_post_img6_clean);
-                    }
-                    if (img6Edit==null){
-                        img6Edit = findViewById(R.id.edit_post_img6_edit);
-                    }
                     img6Clean.setVisibility(View.VISIBLE);
                     img6Edit.setVisibility(View.VISIBLE);
                     imgCount+=1;
                 }
                 break;
+            case 20:
+                if (resultCode == -1){
+                    Bitmap bitmap = getLocalBitmap(getCacheDir()+"/sendpostimg"+cropIndex+".jpeg");
+                    if (bitmap != null ){
+                        getImg(cropIndex).setImageBitmap(bitmap);
+                    }else {
+                        Toast.makeText(this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
             default:
                 break;
         }
@@ -296,6 +491,30 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
         img4 = findViewById(R.id.edit_post_img4);
         img5 = findViewById(R.id.edit_post_img5);
         img6 = findViewById(R.id.edit_post_img6);
+        img1Clean = findViewById(R.id.edit_post_img1_clean);
+        img1Edit = findViewById(R.id.edit_post_img1_edit);
+        img2Clean = findViewById(R.id.edit_post_img2_clean);
+        img2Edit = findViewById(R.id.edit_post_img2_edit);
+        img3Clean = findViewById(R.id.edit_post_img3_clean);
+        img3Edit = findViewById(R.id.edit_post_img3_edit);
+        img4Clean = findViewById(R.id.edit_post_img4_clean);
+        img4Edit = findViewById(R.id.edit_post_img4_edit);
+        img5Clean = findViewById(R.id.edit_post_img5_clean);
+        img5Edit = findViewById(R.id.edit_post_img5_edit);
+        img6Clean = findViewById(R.id.edit_post_img6_clean);
+        img6Edit = findViewById(R.id.edit_post_img6_edit);
+        img1Clean.setOnClickListener(this);
+        img2Clean.setOnClickListener(this);
+        img3Clean.setOnClickListener(this);
+        img4Clean.setOnClickListener(this);
+        img5Clean.setOnClickListener(this);
+        img6Clean.setOnClickListener(this);
+        img1.setOnClickListener(this);
+        img2.setOnClickListener(this);
+        img3.setOnClickListener(this);
+        img4.setOnClickListener(this);
+        img5.setOnClickListener(this);
+        img6.setOnClickListener(this);
         WindowManager wm = this.getWindowManager();
         int width = wm.getDefaultDisplay().getWidth();
         int imgWidth = (width - (int) (20*scale + 0.5f)) /3;
@@ -394,6 +613,56 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                         }
                     }
                 }
+                break;
+            case R.id.edit_post_img2_clean:
+                delImg(2);
+                break;
+            case R.id.edit_post_img3_clean:
+                delImg(3);
+                break;
+            case R.id.edit_post_img4_clean:
+                delImg(4);
+                break;
+            case R.id.edit_post_img5_clean:
+                delImg(5);
+                break;
+            case R.id.edit_post_img6_clean:
+                File file = new File(getCacheDir(),"sendpostimg6.jpeg");
+                if (!file.exists()){
+                    img6.setImageBitmap(getVectorBitmap());
+                    img6.setVisibility(View.GONE);
+                    img6.setVisibility(View.GONE);
+                    imgCount-=1;
+                }else {
+                    if (file.delete()){
+                        img6.setImageBitmap(getVectorBitmap());
+                        img6.setVisibility(View.GONE);
+                        img6.setVisibility(View.GONE);
+                        imgCount-=1;
+                    }else {
+                        Toast.makeText(this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                        imgCount-=1;
+                    }
+                }
+                break;
+            case R.id.edit_post_img1:
+                imgCrop(1);
+                break;
+            case R.id.edit_post_img2:
+                imgCrop(2);
+                break;
+            case R.id.edit_post_img3:
+                imgCrop(3);
+                break;
+            case R.id.edit_post_img4:
+                imgCrop(4);
+                break;
+            case R.id.edit_post_img5:
+                imgCrop(5);
+                break;
+            case R.id.edit_post_img6:
+                imgCrop(6);
+                break;
         }
     }
     private Bitmap getLocalBitmap(String url){
@@ -438,6 +707,7 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                 return null;
         }
     }
+
     private TextView getImgClean(int index){
         switch (index){
             case 1:
@@ -456,6 +726,7 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                 return null;
         }
     }
+
     private TextView getImgEdit(int index){
         switch (index){
             case 1:
@@ -472,6 +743,83 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                 return img6Edit;
             default:
                 return null;
+        }
+    }
+
+    private void delImg(int index){
+        if (imgCount-index>1){
+            File file = new File(getCacheDir(),"sendpostimg"+index+".jpeg");
+            if (file.exists()){
+                if (!file.delete()){
+                    Toast.makeText(this, "当前环境异常，请退出重试1", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            for (int i = index+1;i<=imgCount-1;i++){
+                File cacheFile = new File(getCacheDir(),"sendpostimg"+i+".jpeg");
+                cacheFile.renameTo(new File(getCacheDir(),"sendpostimg"+(i-1)+".jpeg"));
+            }
+            imgCount-=1;
+            if (imgCount!=6){
+                getImg(imgCount+1).setVisibility(View.INVISIBLE);
+                getImgClean(imgCount+1).setVisibility(View.GONE);
+                getImgEdit(imgCount+1).setVisibility(View.GONE);
+                getImg(imgCount).setImageBitmap(getVectorBitmap());
+                getImgClean(imgCount).setVisibility(View.GONE);
+                getImgEdit(imgCount).setVisibility(View.GONE);
+            }else {
+                getImgClean(imgCount).setVisibility(View.GONE);
+                getImgEdit(imgCount).setVisibility(View.GONE);
+                getImg(imgCount).setImageBitmap(getVectorBitmap());
+            }
+            for (int i = index;i<=imgCount-1;i++){
+                Bitmap bitmap = getLocalBitmap(getCacheDir()+"/sendpostimg"+i+".jpeg");
+                if (bitmap != null ){
+                    ImageView img = getImg(i);
+                    if (img!=null){
+                        img.setImageBitmap(bitmap);
+                    }else {
+                        Toast.makeText(this, "当前环境异常，请退出重试2", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }else{
+                    Toast.makeText(this, "当前环境异常，请退出重试3", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+        }else {
+            File file = new File(getCacheDir(),"sendpostimg"+index+".jpeg");
+            if (!file.exists()){
+                getImg(index).setImageBitmap(getVectorBitmap());
+                getImgClean(index).setVisibility(View.GONE);
+                getImgEdit(index).setVisibility(View.GONE);
+                getImg(index+1).setVisibility(View.INVISIBLE);
+                imgCount-=1;
+            }else {
+                if (file.delete()){
+                    getImg(index).setImageBitmap(getVectorBitmap());
+                    getImgClean(index).setVisibility(View.GONE);
+                    getImgEdit(index).setVisibility(View.GONE);
+                    getImg(index+1).setVisibility(View.INVISIBLE);
+                    imgCount-=1;
+                }else {
+                    Toast.makeText(this, "当前环境异常，请退出重试", Toast.LENGTH_SHORT).show();
+                    imgCount-=1;
+                }
+            }
+        }
+    }
+
+    private void imgCrop(int index){
+        if (index==imgCount){
+            Intent intent = new Intent(Intent.ACTION_PICK,null);
+            intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*");
+            startActivityForResult(intent,imgCount);
+        }else {
+            cropIndex = index;
+            UCrop.of(Uri.fromFile(new File(getCacheDir(),"sendpostimg"+index+".jpeg")),Uri.fromFile(new File(getCacheDir(),"sendpostimg"+index+".jpeg")))
+                    .withMaxResultSize(1000,1000)
+                    .start(this,20);
         }
     }
 }

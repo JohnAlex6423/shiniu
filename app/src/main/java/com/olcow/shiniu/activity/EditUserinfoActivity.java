@@ -219,7 +219,6 @@ public class EditUserinfoActivity extends AppCompatActivity {
                 if (data==null){
                     return;
                 } else {
-//                    final Uri resultUri = UCrop.getOutput(data);
                     File file = new File(getCacheDir(),"cropcache.jpeg");
                     final OkHttpClient client = new OkHttpClient.Builder()
                             .writeTimeout(30, TimeUnit.SECONDS)
@@ -230,7 +229,6 @@ public class EditUserinfoActivity extends AppCompatActivity {
                             .addFormDataPart("file",file.getName(),fileBody)
                             .addFormDataPart("oldavatar",avatar.substring(35))
                             .build();
-                    Log.e("shiniu", avatar.substring(35));
                     final Request request = new Request.Builder()
                             .url("http://123.206.93.200:8080/uploadavatar")
                             .post(requestBody)
