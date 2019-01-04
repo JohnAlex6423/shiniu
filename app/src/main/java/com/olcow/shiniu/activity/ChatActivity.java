@@ -345,7 +345,27 @@ public class ChatActivity extends AppCompatActivity {
                 return;
             }
         }
-        startService(new Intent(this,GetMessageService.class).putExtra("senduserinfo",sendUserInfo).putExtra("session",session));
+        startService(new Intent(this,GetMessageService.class).putExtra("senduserinfouid",sendUserInfo.getUid()).putExtra("session",session));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (session==null){
+            if (!getSession()){
+                return;
+            }
+        }
+        if (timer!=null){
+            timer.cancel();
+            timer = null;
+        }
+        if (sendUserInfo == null){
+            if (!getSendUserInfo()){
+                return;
+            }
+        }
+        startService(new Intent(this,GetMessageService.class).putExtra("senduserinfouid",sendUserInfo.getUid()).putExtra("session",session));
     }
 
     @Override

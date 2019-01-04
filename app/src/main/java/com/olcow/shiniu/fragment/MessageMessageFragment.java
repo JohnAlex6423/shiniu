@@ -62,6 +62,8 @@ public class MessageMessageFragment extends Fragment {
         noneMessageText = view.findViewById(R.id.message_message_none);
         nowMessageReList = view.findViewById(R.id.message_message_rec);
         swipeRefreshLayout = view.findViewById(R.id.message_message_swipe);
+        nowMessageReList.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
+        nowMessageReList.setItemAnimator(new DefaultItemAnimator());
         return view;
     }
 
@@ -164,8 +166,6 @@ public class MessageMessageFragment extends Fragment {
                     LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(new Intent().setAction("mainmessagebadge"));
                 }
             });
-            nowMessageReList.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
-            nowMessageReList.setItemAnimator(new DefaultItemAnimator());
             nowMessageReList.setAdapter(nowMessageAdapter);
             nowMessageReList.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setColorSchemeColors(-745928);

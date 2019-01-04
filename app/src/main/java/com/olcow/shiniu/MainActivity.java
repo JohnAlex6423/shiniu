@@ -1,26 +1,31 @@
 package com.olcow.shiniu;
 
+import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.net.Uri;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +41,8 @@ import com.olcow.shiniu.sqlite.AccountDatabaseHelper;
 import com.olcow.shiniu.sqlite.ChatDatabaseHelper;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -437,5 +444,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             redbadge.setVisibility(View.GONE);
         }
+    }
+
+    private void initPermission(){
+        String[] permissions = new String[]{Manifest.permission.INTERNET,Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        List<String> mPermissions = new ArrayList<>();
+        for (int i=0;i<permissions.length;i++){
+            if (ContextCompat.checkSelfPermission(this,permissions[i]) == PackageManager.PERMISSION_GRANTED){
+
+            }else {
+                mPermissions.add(permissions[i]);
+            }
+        }
+        if (!mPermissions.isEmpty()){
+            ActivityCompat.requestPermissions(this,permissions,100);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 100){
+            boolean hasPermissionDismiss = false;
+            for (int grantResult : grantResults) {
+                if (grantResult == -1) {
+                    hasPermissionDismiss = true;
+                }
+            }
+            if (hasPermissionDismiss){
+                showPermissionDialog();
+            }
+        }
+    }
+
+    private void showPermissionDialog() {
+            final AlertDialog mPermissionDialog = new AlertDialog.Builder(this)
+                    .setMessage("已禁用权限，请手动授予")
+                    .setPositiveButton("设置", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Uri packageURI = Uri.parse("package:com.olcow.shiniu");
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI);
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(MainActivity.this, "获得权限失败，请退出重试", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .create();
+            mPermissionDialog.show();
     }
 }
