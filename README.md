@@ -1,18 +1,38 @@
-# 基于VUE框架的移动端帖子系统
+# 个人全栈开发《是牛》app Android前端
 
 ## 链接：[http://olcow.com](http://olcow.com)
 
 ### 纯属个人学习制作，如果喜欢加个star吧，谢谢！
 
-### 后端搭使用springboot，感兴趣的也可以发
+### 后端搭使用springboot 链接：
 
-## 主页界面
+### 单点登陆(https://github.com/JohnAlex6423/olcowsso)
 
-![image](https://raw.githubusercontent.com/JohnAlex6423/olcowPostBar/master/mdimage/home.gif)
+### 聊天（https://github.com/JohnAlex6423/olcowchat）
 
-## 发帖界面
+## 界面截图
 
-![image](https://raw.githubusercontent.com/JohnAlex6423/olcowPostBar/master/mdimage/field.gif)
+![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/home.png)
+
+![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/chat.png)
+
+![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/message1.png)
+
+![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/message2.png)
+
+![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/message3.png)
+
+![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/seditpost.png)
+
+![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/my.png)
+
+![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/editmy.png)
+
+![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/sendavtivity.png)
+
+![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/setting.png)
+
+
 
 ## 如果其中的想法帮到你了，就打赏一波吧
 ![image](https://raw.githubusercontent.com/JohnAlex6423/olcowPostBar/master/mdimage/zhifubao.jpg)
