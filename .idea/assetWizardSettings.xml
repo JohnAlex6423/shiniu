@@ -23,7 +23,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_photo_library_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_camera_alt_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -35,8 +35,8 @@
                           <map>
                             <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="8a8a8a" />
-                            <entry key="outputName" value="ic_img_plus" />
-                            <entry key="sourceFile" value="C:\Users\LaoZhao\Desktop\图片素材\1x\1x\SVG\img_plus.svg" />
+                            <entry key="outputName" value="ic_camera" />
+                            <entry key="sourceFile" value="C:\Users\LaoZhao\Desktop\图片素材\camera.svg" />
                           </map>
                         </option>
                       </PersistentState>

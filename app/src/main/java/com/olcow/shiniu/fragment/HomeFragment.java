@@ -1,6 +1,7 @@
 package com.olcow.shiniu.fragment;
 
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -13,10 +14,12 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.olcow.shiniu.R;
+import com.olcow.shiniu.activity.SendPostActivity;
 import com.olcow.shiniu.adapter.PostAdapter;
 import com.olcow.shiniu.entity.Post;
 import com.olcow.shiniu.entity.PostPro;
@@ -44,7 +47,9 @@ public class HomeFragment extends Fragment {
     private List<Post> posts;
     private RecyclerView.Adapter adapter;
     private int imgWidth;
+    private ImageView homePlus;
     private RecyclerView recyclerView;
+    private int pageNumber;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -63,11 +68,20 @@ public class HomeFragment extends Fragment {
         recyclerView = view.findViewById(R.id.home_recy);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        homePlus = view.findViewById(R.id.home_plus);
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         Point point = new Point();
         display.getSize(point);
+        pageNumber = 1;
         imgWidth = (point.x - (int) (20*Resources.getSystem().getDisplayMetrics().density + 0.5f)) /3;
         getPosts();
+        homePlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(),SendPostActivity.class));
+                getActivity().overridePendingTransition(0,0);
+            }
+        });
         return view;
     }
 
@@ -76,7 +90,7 @@ public class HomeFragment extends Fragment {
             okHttpClient = new OkHttpClient();
         }
         okHttpClient.newCall(new Request.Builder()
-                .url("http://39.96.40.12:7678/post/getallpost")
+                .url("http://39.96.40.12:7678/post/getallpost?pageNumber="+pageNumber+"&pageSize=20")
                 .build()).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -104,7 +118,7 @@ public class HomeFragment extends Fragment {
                     if (jsonArray !=null){
                         for (int i=0;i<jsonArray.length();i++){
                             try {
-                                imgs.add(jsonArray.getString(i));
+                                imgs.add("http://123.206.93.200/uploadimg/"+jsonArray.getString(i));
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }

@@ -14,6 +14,7 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,7 +154,7 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
 
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {
-                            String res = response.body().string();
+                            final String res = response.body().string();
                             switch (res) {
                                 case "successful":
                                     runOnUiThread(new Runnable() {
@@ -191,6 +192,7 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
+                                            Log.e("shiniu", "run: "+res);
                                             Toast.makeText(EditPostActivity.this, "环境异常，请退出重试", Toast.LENGTH_SHORT).show();
                                         }
                                     });
@@ -271,7 +273,7 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
 
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
-                                    String res = response.body().string();
+                                    final String res = response.body().string();
                                     switch (res) {
                                         case "successful":
                                             runOnUiThread(new Runnable() {
@@ -309,6 +311,7 @@ public class EditPostActivity extends AppCompatActivity implements View.OnClickL
                                                 runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
+                                                        Log.e("shiniu", "run: "+res);
                                                         Toast.makeText(EditPostActivity.this, "环境异常，请退出重试", Toast.LENGTH_SHORT).show();
                                                     }
                                                 });

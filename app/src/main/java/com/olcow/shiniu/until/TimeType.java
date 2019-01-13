@@ -78,13 +78,6 @@ public class TimeType {
             int nowYear = calendar.get(Calendar.YEAR);
             calendar.setTime(new Date(time));
             int sendYear = calendar.get(Calendar.YEAR);
-            int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
-            String hourDayText;
-            if (hourOfDay<10){
-                hourDayText = "0"+hourOfDay;
-            }else {
-                hourDayText = String.valueOf(hourOfDay);
-            }
             int min = calendar.get(Calendar.MINUTE);
             String minText;
             if (min<10){
@@ -93,9 +86,9 @@ public class TimeType {
                 minText = String.valueOf(min);
             }
             if (nowYear>sendYear){
-                return sendYear+"-"+calendar.get(Calendar.MONTH)+1+"-"+calendar.get(Calendar.DAY_OF_MONTH)+hourDayText+":"+minText;
+                return sendYear+"-"+(calendar.get(Calendar.MONTH)+1)+"-"+calendar.get(Calendar.DAY_OF_MONTH)+" "+calendar.get(Calendar.HOUR_OF_DAY)+":"+minText;
             }
-            return calendar.get(Calendar.MONTH)+1+"-"+calendar.get(Calendar.DAY_OF_MONTH)+hourDayText+":"+minText;
+            return (calendar.get(Calendar.MONTH)+1)+"-"+calendar.get(Calendar.DAY_OF_MONTH)+" "+calendar.get(Calendar.HOUR_OF_DAY)+":"+minText;
         }
     }
 
@@ -159,9 +152,9 @@ public class TimeType {
             calendar.setTime(new Date(time));
             int sendYear = calendar.get(Calendar.YEAR);
             if (nowYear > sendYear) {
-                return sendYear + "-" + calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH);
+                return sendYear + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DAY_OF_MONTH);
             }
-            return calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH);
+            return (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DAY_OF_MONTH);
         }
     }
 
