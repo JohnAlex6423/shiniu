@@ -12,8 +12,11 @@
 
 ## ΩÁ√ÊΩÿÕº
 
-![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/home.png)
+<p align="center">
+    <img src="https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/home.png" alt="Sample"  width="30%">
 
+</p>
+--------------------- 
 ![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/chat.png)
 
 ![image](https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/message1.png)
