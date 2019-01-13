@@ -1,16 +1,16 @@
-# ¸öÈËÈ«Õ»¿ª·¢¡¶ÊÇÅ£¡·app AndroidÇ°¶Ë
+# ä¸ªäººå…¨æ ˆå¼€å‘ã€Šæ˜¯ç‰›ã€‹app Androidå‰ç«¯
 
-## Á´½Ó£º[http://olcow.com](http://olcow.com)
+## é“¾æ¥ï¼š[http://olcow.com](http://olcow.com)
 
-### ´¿Êô¸öÈËÑ§Ï°ÖÆ×÷£¬Èç¹ûÏ²»¶¼Ó¸östar°É£¬Ğ»Ğ»£¡
+### çº¯å±ä¸ªäººå­¦ä¹ åˆ¶ä½œï¼Œå¦‚æœå–œæ¬¢åŠ ä¸ªstarå§ï¼Œè°¢è°¢ï¼
 
-### ºó¶Ë´îÊ¹ÓÃspringboot Á´½Ó£º
+### åç«¯æ­ä½¿ç”¨springboot é“¾æ¥ï¼š
 
-### µ¥µãµÇÂ½(https://github.com/JohnAlex6423/olcowsso)
+### å•ç‚¹ç™»é™†(https://github.com/JohnAlex6423/olcowsso)
 
-### ÁÄÌì£¨https://github.com/JohnAlex6423/olcowchat£©
+### èŠå¤©(https://github.com/JohnAlex6423/olcowchat)
 
-## ½çÃæ½ØÍ¼
+## ç•Œé¢æˆªå›¾
 
 <p align="left">
     <img src="https://raw.githubusercontent.com/JohnAlex6423/shiniu/master/mdimg/home.png" alt="Sample"  width="30%">
@@ -59,7 +59,7 @@
 
 </p>
 
-## Èç¹ûÆäÖĞµÄÏë·¨°ïµ½ÄãÁË£¬¾Í´òÉÍÒ»²¨°É
+## å¦‚æœå…¶ä¸­çš„æƒ³æ³•å¸®åˆ°ä½ äº†ï¼Œå°±æ‰“èµä¸€æ³¢å§
 ![image](https://raw.githubusercontent.com/JohnAlex6423/olcowPostBar/master/mdimage/zhifubao.jpg)
 ##
 ![image](https://raw.githubusercontent.com/JohnAlex6423/olcowPostBar/master/mdimage/hongbao.png)
